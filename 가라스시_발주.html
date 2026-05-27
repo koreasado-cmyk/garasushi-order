@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1" />
+<meta name="theme-color" content="#1F4E78" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="가라스시 발주" />
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%231F4E78'/><text x='96' y='128' font-size='110' text-anchor='middle' fill='white'>🍣</text></svg>" />
+<link rel="manifest" href='data:application/json,{"name":"가라스시 발주","short_name":"발주","start_url":".","display":"standalone","background_color":"%231F4E78","theme_color":"%231F4E78","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27><rect width=%27192%27 height=%27192%27 rx=%2740%27 fill=%27%231F4E78%27/><text x=%2796%27 y=%27128%27 font-size=%27110%27 text-anchor=%27middle%27 fill=%27white%27>🍣</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
+<title>가라스시 발주</title>
+<style>
+  :root{
+    --primary:#1F4E78; --kakao:#FEE500;
+    --hot:#C00000; --mid:#D08700; --low:#548235;
+    --bg-hot:#FFE2E2; --bg-mid:#FFF4D6; --bg-low:#E2F0D9;
+    --gray-50:#FAFAFA; --gray-100:#F2F2F2; --gray-300:#D9D9D9;
+    --gray-600:#595959; --gray-900:#1A1A1A;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'맑은 고딕','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--gray-50);color:var(--gray-900);font-size:15px;line-height:1.4;}
+  body{padding-bottom:90px;}
+  /* 점포 선택 화면 */
+  .picker{position:fixed;inset:0;background:linear-gradient(180deg,#1F4E78 0%,#163E5F 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;z-index:1000;}
+  .picker.hide{display:none;}
+  .picker .logo{font-size:64px;margin-bottom:8px;}
+  .picker h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-0.3px;}
+  .picker .tagline{margin:6px 0 30px;font-size:13px;opacity:.8;}
+  .picker .store-btn{width:100%;max-width:340px;padding:22px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);border-radius:18px;color:#fff;font-size:18px;font-weight:700;margin-bottom:14px;cursor:pointer;backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;text-align:left;}
+  .picker .store-btn:active{background:rgba(255,255,255,.22);}
+  .picker .store-btn .arrow{opacity:.6;}
+  .picker .install-hint{margin-top:28px;max-width:340px;font-size:12px;opacity:.7;text-align:center;line-height:1.55;}
+
+  header{position:sticky;top:0;z-index:50;background:var(--primary);color:#fff;padding:14px 16px env(safe-area-inset-top,0) 16px;box-shadow:0 2px 8px rgba(0,0,0,.15);display:flex;align-items:center;gap:12px;}
+  header .back{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0;line-height:1;}
+  header .title{flex:1;}
+  header h1{margin:0;font-size:17px;font-weight:700;}
+  header .sub{font-size:11px;opacity:.85;margin-top:2px;}
+  .meta{display:flex;gap:8px;padding:12px;background:#fff;border-bottom:1px solid var(--gray-300);}
+  .meta input{flex:1;border:1px solid var(--gray-300);border-radius:8px;padding:10px 12px;font-size:14px;background:var(--gray-50);}
+  .meta input:focus{outline:none;border-color:var(--primary);background:#fff;}
+  .filter{padding:10px 12px;background:#fff;border-bottom:1px solid var(--gray-300);position:sticky;top:60px;z-index:40;}
+  .filter input{width:100%;border:1px solid var(--gray-300);border-radius:24px;padding:10px 16px;font-size:14px;background:var(--gray-50);}
+  .filter input:focus{outline:none;border-color:var(--primary);background:#fff;}
+  .tier-filters{display:flex;gap:6px;margin-top:10px;}
+  .tier-filter{flex:1;padding:7px 6px;border-radius:20px;border:1.5px solid var(--gray-300);background:#fff;font-size:12px;font-weight:600;color:var(--gray-600);cursor:pointer;text-align:center;}
+  .tier-filter.active{color:#fff;border-color:transparent;}
+  .tier-filter.active[data-tier="hot"]{background:var(--hot);}
+  .tier-filter.active[data-tier="mid"]{background:var(--mid);}
+  .tier-filter.active[data-tier="low"]{background:var(--low);}
+  .tier-filter.active[data-tier="all"]{background:var(--primary);}
+  .vendor{margin-top:8px;background:#fff;}
+  .vendor-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:1px solid var(--gray-300);position:sticky;top:128px;z-index:30;cursor:pointer;}
+  .vendor-head h2{margin:0;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
+  .vendor-head .count{font-size:12px;color:var(--gray-600);font-weight:500;background:var(--gray-100);padding:3px 9px;border-radius:12px;}
+  .vendor-head .count.active{background:var(--primary);color:#fff;}
+  .vendor.collapsed .vendor-body{display:none;}
+  .vendor-head .caret{transition:transform .2s;}
+  .vendor.collapsed .vendor-head .caret{transform:rotate(-90deg);}
+  .tier-group-label{display:flex;align-items:center;gap:8px;padding:10px 16px;font-size:12px;font-weight:700;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-300);}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;}
+  .dot.hot{background:var(--hot);} .dot.mid{background:var(--mid);} .dot.low{background:var(--low);}
+  .item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--gray-100);}
+  .item .name{flex:1;min-width:0;}
+  .item .name .title{font-size:14px;font-weight:500;color:var(--gray-900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .item .name .info{font-size:11px;color:var(--gray-600);margin-top:2px;}
+  .item .qty{display:flex;align-items:center;gap:6px;}
+  .item .qty button{width:32px;height:32px;border:1px solid var(--gray-300);background:#fff;border-radius:8px;font-size:18px;font-weight:600;color:var(--primary);cursor:pointer;line-height:1;}
+  .item .qty button:active{background:var(--gray-100);}
+  .item .qty input{width:54px;text-align:center;border:1.5px solid var(--gray-300);border-radius:8px;padding:7px 4px;font-size:15px;font-weight:600;background:#fff;}
+  .item .qty input:focus{outline:none;border-color:var(--primary);}
+  .item.checked{background:#EAFBE7;}
+  .item.checked .name .title{color:#006100;}
+  .item[data-tier="hot"]{border-left:3px solid var(--hot);}
+  .item[data-tier="mid"]{border-left:3px solid var(--mid);}
+  .item[data-tier="low"]{border-left:3px solid var(--low);}
+  .actionbar{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0)) 12px;display:flex;gap:8px;border-top:1px solid var(--gray-300);box-shadow:0 -2px 12px rgba(0,0,0,.08);z-index:60;}
+  .actionbar .count-pill{flex:0 0 auto;display:flex;align-items:center;padding:0 14px;border-radius:24px;background:var(--gray-100);font-size:13px;font-weight:600;color:var(--gray-600);}
+  .actionbar button{padding:13px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;}
+  .actionbar .btn-go{flex:1;background:var(--kakao);color:#3C1E1E;}
+  .actionbar .btn-go:active{background:#E5CC00;}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;z-index:100;}
+  .modal.open{display:flex;}
+  .modal-body{background:#fff;width:100%;max-height:85vh;border-radius:18px 18px 0 0;padding:20px;display:flex;flex-direction:column;}
+  .modal-body h3{margin:0 0 12px 0;font-size:16px;}
+  .modal-body textarea{flex:1;width:100%;min-height:300px;border:1px solid var(--gray-300);border-radius:10px;padding:12px;font-family:inherit;font-size:13px;line-height:1.6;resize:none;background:var(--gray-50);}
+  .modal-actions{display:flex;gap:8px;margin-top:14px;}
+  .modal-actions button{flex:1;padding:13px;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;}
+  .modal .close{background:var(--gray-100);color:var(--gray-900);}
+  .modal .btn-copy{background:var(--primary);color:#fff;}
+  .modal .btn-share{background:var(--kakao);color:#3C1E1E;}
+  .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:12px 20px;border-radius:24px;font-size:13px;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;}
+  .toast.show{opacity:1;}
+  .install-banner{position:fixed;bottom:80px;left:12px;right:12px;background:#fff;border:1.5px solid var(--primary);border-radius:14px;padding:14px;display:none;align-items:center;gap:10px;z-index:55;box-shadow:0 6px 24px rgba(0,0,0,.12);}
+  .install-banner.show{display:flex;}
+  .install-banner .txt{flex:1;font-size:13px;}
+  .install-banner .txt strong{display:block;font-size:14px;margin-bottom:2px;}
+  .install-banner button{padding:8px 14px;border-radius:10px;border:none;font-weight:700;cursor:pointer;font-size:13px;}
+  .install-banner .btn-add{background:var(--primary);color:#fff;}
+  .install-banner .btn-skip{background:var(--gray-100);color:var(--gray-600);}
+  .hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<!-- 점포 선택 화면 -->
+<div class="picker" id="picker">
+  <div class="logo">🍣</div>
+  <h1>가라스시 발주</h1>
+  <div class="tagline">점포를 선택하세요</div>
+  <button class="store-btn" data-store="가경점">
+    <span>📍 가경점</span><span class="arrow">→</span>
+  </button>
+  <button class="store-btn" data-store="방서점">
+    <span>📍 방서점</span><span class="arrow">→</span>
+  </button>
+  <div class="install-hint">
+    💡 처음 사용 시 브라우저 메뉴에서 <b>"홈 화면에 추가"</b> 를 누르면<br/>
+    앱처럼 빠르게 실행할 수 있습니다.
+  </div>
+</div>
+
+<!-- 메인 -->
+<header style="display:none" id="header">
+  <button class="back" onclick="backToPicker()">‹</button>
+  <div class="title">
+    <h1 id="storeTitle"></h1>
+    <div class="sub">2026년 1~4월 주문이력 기준 · 빈도순</div>
+  </div>
+</header>
+
+<div class="meta" id="metaBlock" style="display:none">
+  <input id="date" type="date" />
+  <input id="writer" type="text" placeholder="작성자" autocomplete="name" />
+</div>
+
+<div class="filter" id="filterBlock" style="display:none">
+  <input id="search" type="search" placeholder="🔍 품목 검색" />
+  <div class="tier-filters">
+    <button class="tier-filter active" data-tier="all">전체</button>
+    <button class="tier-filter" data-tier="hot">🔴 매우 빈번</button>
+    <button class="tier-filter" data-tier="mid">🟡 빈번</button>
+    <button class="tier-filter" data-tier="low">🟢 가끔</button>
+  </div>
+</div>
+
+<div id="vendors"></div>
+
+<div class="actionbar" id="actionbar" style="display:none">
+  <div class="count-pill"><span id="checkedCount">0</span>건</div>
+  <button class="btn-go" id="btn-preview">💬 카톡으로 보내기</button>
+</div>
+
+<!-- 설치 안내 배너 -->
+<div class="install-banner" id="installBanner">
+  <div class="txt"><strong>홈 화면에 추가</strong>다음부터 앱처럼 한 번에 실행</div>
+  <button class="btn-add" id="btnInstall">추가</button>
+  <button class="btn-skip" onclick="dismissInstall()">×</button>
+</div>
+
+<!-- 미리보기/공유 모달 -->
+<div class="modal" id="modal">
+  <div class="modal-body">
+    <h3>📋 발주서 미리보기</h3>
+    <textarea id="output" readonly></textarea>
+    <div class="modal-actions">
+      <button class="close" onclick="closeModal()">닫기</button>
+      <button class="btn-copy" onclick="copyText()">📋 복사</button>
+      <button class="btn-share" onclick="shareText()">💬 공유</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORES = {"가경점": [{"icon": "🐟", "name": "삼학도수산", "unit": "kg", "items": [{"name": "연어(생물)", "qty": 1704.0, "price": 19672, "tier": "hot"}, {"name": "광어", "qty": 1076.0, "price": 25155, "tier": "hot"}, {"name": "우럭", "qty": 5.0, "price": 22900, "tier": "low"}, {"name": "새꼬막", "qty": 5.0, "price": 6500, "tier": "low"}, {"name": "솜", "qty": 2.0, "price": 25000, "tier": "low"}, {"name": "돌멍게", "qty": 2.0, "price": 14000, "tier": "low"}, {"name": "도미(국산)", "qty": 2.0, "price": 21000, "tier": "low"}, {"name": "바지락(중산)", "qty": 2.0, "price": 5000, "tier": "low"}, {"name": "문어", "qty": 1.0, "price": 23000, "tier": "low"}, {"name": "알굴(2kg)", "qty": 1.0, "price": 25000, "tier": "low"}]}, {"icon": "🍣", "name": "아노참치", "unit": "", "items": [{"name": "초밥계란-국내", "qty": 784.0, "price": 4975, "tier": "hot"}, {"name": "새우노바시40미-베트남", "qty": 745.0, "price": 5300, "tier": "hot"}, {"name": "백미새우(10g)-베트남", "qty": 643.0, "price": 4300, "tier": "hot"}, {"name": "황새치대절", "qty": 409.15999999999997, "price": 16000, "tier": "hot"}, {"name": "해동지-국내", "qty": 312.0, "price": 3600, "tier": "hot"}, {"name": "초밥솔방울한치8g-베트남", "qty": 296.0, "price": 6300, "tier": "hot"}, {"name": "초밥아까에비16g-아르헨티나(new)", "qty": 296.0, "price": 6350, "tier": "hot"}, {"name": "조제새우(10미)-베트남", "qty": 274.0, "price": 3100, "tier": "hot"}, {"name": "사조초밥김-과세", "qty": 270.0, "price": 3200, "tier": "hot"}, {"name": "초밥문어8g-베트남", "qty": 265.0, "price": 7900, "tier": "hot"}, {"name": "초밥갑오징어-베트남", "qty": 229.0, "price": 4900, "tier": "hot"}, {"name": "우동면(쫄깃한면)", "qty": 208.0, "price": 2600, "tier": "hot"}, {"name": "초밥가리비8g-중국", "qty": 199.0, "price": 4775, "tier": "hot"}, {"name": "날치알(레드)-수입", "qty": 179.0, "price": 13500, "tier": "hot"}, {"name": "아마애비2L-캐나다", "qty": 173.0, "price": 5200, "tier": "hot"}, {"name": "감자말이새우-베트남", "qty": 168.0, "price": 5000, "tier": "hot"}, {"name": "민물장어(12미)-중국", "qty": 162.0, "price": 24750, "tier": "hot"}, {"name": "안키모(원형)", "qty": 162.0, "price": 4700, "tier": "hot"}, {"name": "키조개관자(16/20)-중국", "qty": 161.0, "price": 19500, "tier": "hot"}, {"name": "크레미파치-인도", "qty": 159.0, "price": 6550, "tier": "hot"}, {"name": "타코와사비-베트남", "qty": 153.0, "price": 20750, "tier": "hot"}, {"name": "락교파우치(삼도)", "qty": 144.0, "price": 10000, "tier": "hot"}, {"name": "치킨가라아게-태국", "qty": 115.0, "price": 12000, "tier": "hot"}, {"name": "초생강(백)-중국", "qty": 110.0, "price": 2800, "tier": "hot"}, {"name": "삼광999미니와사비", "qty": 100.0, "price": 14700, "tier": "hot"}, {"name": "백미새우(16g)-베트남", "qty": 660.0, "price": 4033, "tier": "mid"}, {"name": "초밥참소라(7g)-불가리아", "qty": 310.0, "price": 6300, "tier": "mid"}, {"name": "초새우6LH(목단)-태국", "qty": 290.0, "price": 8000, "tier": "mid"}, {"name": "초밥참소라(9g)-튀르키예(씨케이)", "qty": 190.0, "price": 8900, "tier": "mid"}, {"name": "냉동라멘", "qty": 94.0, "price": 2800, "tier": "mid"}, {"name": "메밀면-프리미엄", "qty": 89.0, "price": 3200, "tier": "mid"}, {"name": "오징어다리튀김", "qty": 79.0, "price": 11500, "tier": "mid"}, {"name": "ANO참치-B/F4번도로(50상)", "qty": 70.44, "price": 50000, "tier": "mid"}, {"name": "버팔로봉-태국", "qty": 66.0, "price": 13200, "tier": "mid"}, {"name": "ANO참치-B/F4번도로(60상)", "qty": 58.580000000000005, "price": 52000, "tier": "mid"}, {"name": "초밥유부(미니)-일본", "qty": 58.0, "price": 6900, "tier": "mid"}, {"name": "게맛살튀김-중국", "qty": 53.0, "price": 5800, "tier": "mid"}, {"name": "버팔로윙-태국", "qty": 45.0, "price": 16375, "tier": "mid"}, {"name": "유림바다장어-페루", "qty": 45.0, "price": 18500, "tier": "mid"}, {"name": "유부(슬라이스)-수입", "qty": 45.0, "price": 5500, "tier": "mid"}, {"name": "멘보샤-베트남", "qty": 30.0, "price": 11500, "tier": "mid"}, {"name": "감태-국내", "qty": 27.0, "price": 4700, "tier": "mid"}, {"name": "베이컨-수입", "qty": 26.0, "price": 18250, "tier": "mid"}, {"name": "정종", "qty": 22.0, "price": 12000, "tier": "mid"}, {"name": "타코야끼-중국", "qty": 20.0, "price": 5000, "tier": "mid"}, {"name": "백미새우(16g)-우원", "qty": 185.0, "price": 3700, "tier": "low"}, {"name": "초새우4LA(목단)-태국", "qty": 65.0, "price": 5400, "tier": "low"}, {"name": "참치-B/E70上블럭S/A", "qty": 50.08, "price": 21000, "tier": "low"}, {"name": "참치-B/E스시대절", "qty": 49.0, "price": 18500, "tier": "low"}, {"name": "감자말이새우20g-베트남", "qty": 36.0, "price": 3200, "tier": "low"}, {"name": "민물장어(10미)-중국", "qty": 25.0, "price": 28000, "tier": "low"}, {"name": "후타바 킨지루시 소바쯔유", "qty": 19.0, "price": 29000, "tier": "low"}, {"name": "돈코츠라멘소스-일본", "qty": 16.0, "price": 35500, "tier": "low"}, {"name": "화이트슈", "qty": 16.0, "price": 27000, "tier": "low"}, {"name": "건더기스프(면사랑)-수입", "qty": 15.0, "price": 5200, "tier": "low"}, {"name": "날치알(그린)-수입", "qty": 15.0, "price": 14000, "tier": "low"}, {"name": "초밥참소라(7g)-튀르키예(씨케이)", "qty": 15.0, "price": 7000, "tier": "low"}, {"name": "초코슈", "qty": 14.0, "price": 27000, "tier": "low"}, {"name": "시치미-국내", "qty": 13.0, "price": 4500, "tier": "low"}, {"name": "건다시마(1k)", "qty": 12.0, "price": 17000, "tier": "low"}, {"name": "생와사비705-중국", "qty": 11.0, "price": 10000, "tier": "low"}, {"name": "메밀면-모노쉐프", "qty": 11.0, "price": 3500, "tier": "low"}, {"name": "초밥이게조아-수입", "qty": 11.0, "price": 5800, "tier": "low"}, {"name": "참치-흑새치정각", "qty": 10.0, "price": 21000, "tier": "low"}, {"name": "초밥북방조개-캐나다", "qty": 10.0, "price": 3300, "tier": "low"}, {"name": "안키모-아이씨(중국)", "qty": 10.0, "price": 4200, "tier": "low"}, {"name": "감자말이새우-베트남 (20그람)", "qty": 10.0, "price": 3200, "tier": "low"}, {"name": "빵가루-젖은(신일)", "qty": 8.0, "price": 7500, "tier": "low"}, {"name": "우동장국", "qty": 8.0, "price": 7000, "tier": "low"}, {"name": "하나갓스오부시-국내", "qty": 7.0, "price": 18000, "tier": "low"}, {"name": "토페도새우(헤드온)-베트남", "qty": 5.0, "price": 6000, "tier": "low"}, {"name": "마카롱라즈베리", "qty": 4.0, "price": 99750, "tier": "low"}, {"name": "마카롱바닐라", "qty": 4.0, "price": 99750, "tier": "low"}, {"name": "마카롱초콜릿", "qty": 4.0, "price": 99750, "tier": "low"}, {"name": "초밥유부S-일본", "qty": 4.0, "price": 6400, "tier": "low"}, {"name": "절단꽃게L-중국", "qty": 2.0, "price": 3000, "tier": "low"}, {"name": "중화면-수입", "qty": 2.0, "price": 2500, "tier": "low"}, {"name": "몽고백된장-수입", "qty": 2.0, "price": 10000, "tier": "low"}, {"name": "미림", "qty": 1.0, "price": 63000, "tier": "low"}, {"name": "새우칵테일(71/90)-베트남", "qty": 1.0, "price": 3900, "tier": "low"}, {"name": "오뚜기)데리야끼파우치", "qty": 1.0, "price": 6200, "tier": "low"}, {"name": "말린단무지-중국", "qty": 1.0, "price": 7400, "tier": "low"}, {"name": "자숙문어-필리핀", "qty": 0.82, "price": 21500, "tier": "low"}, {"name": "참알-러시아", "qty": 0.78, "price": 12500, "tier": "low"}, {"name": "명태고니-러시아", "qty": 0.72, "price": 6500, "tier": "low"}]}, {"icon": "🥬", "name": "한국유통", "unit": "", "items": [{"name": "무순(야채)플라스틱 [1팩]", "qty": 516.0, "price": 550, "tier": "hot"}, {"name": "양파(깐거)국산 [1kg]", "qty": 490.0, "price": 2500, "tier": "hot"}, {"name": "도시락김(들기름)동원 4.5g [1봉(9개)]", "qty": 222.0, "price": 4000, "tier": "hot"}, {"name": "떠먹는애플망고(오뚜기) [90g]", "qty": 198.0, "price": 720, "tier": "hot"}, {"name": "스위트엔젤복숭아(오뚜기) [90g]", "qty": 180.0, "price": 720, "tier": "hot"}, {"name": "떠먹는샤인머스캣(오뚜기) [90g]", "qty": 180.0, "price": 720, "tier": "hot"}, {"name": "떡갈비(임꺽정)삼양 [1.2kg]", "qty": 119.0, "price": 13800, "tier": "hot"}, {"name": "위생장갑(이츠웰)200매", "qty": 105.0, "price": 3800, "tier": "hot"}, {"name": "깐쪽파(야채) [1단]", "qty": 87.0, "price": 5262, "tier": "hot"}, {"name": "신라면(컵라면)16개입(대) [1B]", "qty": 83.0, "price": 1250, "tier": "hot"}, {"name": "마요네즈(오뚜기)스파우트팩 [3.2kg]", "qty": 80.0, "price": 14542, "tier": "hot"}, {"name": "장갑(면)검정1타", "qty": 64.0, "price": 1900, "tier": "hot"}, {"name": "김치(해야)수입 [10kg]", "qty": 59.0, "price": 17225, "tier": "hot"}, {"name": "미역줄기(소) [250G]", "qty": 53.0, "price": 2000, "tier": "hot"}, {"name": "꽃소금(15kg) 수입", "qty": 40.0, "price": 12500, "tier": "hot"}, {"name": "사과(과일) [1EA]", "qty": 71.0, "price": 2000, "tier": "mid"}, {"name": "몽고백된장 [(4kg)]", "qty": 27.0, "price": 10000, "tier": "mid"}, {"name": "수술용니트릴(블랙)/M [100개입]", "qty": 25.0, "price": 6500, "tier": "mid"}, {"name": "랩(4050)유니", "qty": 25.0, "price": 22500, "tier": "mid"}, {"name": "백설탕(제당) [15kg]", "qty": 24.0, "price": 23500, "tier": "mid"}, {"name": "환만식초(롯데) [1.8L]", "qty": 22.0, "price": 2500, "tier": "mid"}, {"name": "종이컵(1B)", "qty": 20.0, "price": 9500, "tier": "mid"}, {"name": "무(야채) [1개]", "qty": 20.0, "price": 1500, "tier": "mid"}, {"name": "냅킨(테이블)80/60 [1B]", "qty": 19.0, "price": 7800, "tier": "mid"}, {"name": "몬스위트칠리(코만푸드) [5L]", "qty": 17.0, "price": 30800, "tier": "mid"}, {"name": "계란(특란)30구", "qty": 16.0, "price": 7700, "tier": "mid"}, {"name": "정종(수복) [1.8L]", "qty": 15.0, "price": 12500, "tier": "mid"}, {"name": "식용유(쉐프원) [18L]", "qty": 14.0, "price": 46000, "tier": "mid"}, {"name": "가스오풍쯔유(이엔) [1.8L]", "qty": 12.0, "price": 9300, "tier": "mid"}, {"name": "대파(야채)1단", "qty": 11.0, "price": 2000, "tier": "mid"}, {"name": "신일빵가루 [2kg]", "qty": 11.0, "price": 7500, "tier": "mid"}, {"name": "비닐(검정)100L", "qty": 11.0, "price": 7000, "tier": "mid"}, {"name": "레몬 [1EA]", "qty": 28.0, "price": 800, "tier": "low"}, {"name": "위생장갑(셰프) [200매]", "qty": 25.0, "price": 3800, "tier": "low"}, {"name": "참깨(볶음)수입산 [1kg]", "qty": 9.0, "price": 7500, "tier": "low"}, {"name": "간마늘(야채)국산 [1kg]", "qty": 9.0, "price": 9000, "tier": "low"}, {"name": "돼지고기(삼겹살)수입 [1kg]", "qty": 9.0, "price": 15000, "tier": "low"}, {"name": "고추참치(동원) [135g]", "qty": 8.0, "price": 2100, "tier": "low"}, {"name": "꿀(잡화)정성 [2.4KG]", "qty": 7.0, "price": 7000, "tier": "low"}, {"name": "야끼기자미노리-김가루 [1봉(100g)]", "qty": 7.0, "price": 6700, "tier": "low"}, {"name": "태양초고추장(해찬들) [3kg]", "qty": 7.0, "price": 24000, "tier": "low"}, {"name": "블럭치즈(수입) 조흥(소렌토) [2.4kg]", "qty": 7.0, "price": 26500, "tier": "low"}, {"name": "슬라이스치즈(서울)1.8kg [100매]", "qty": 7.0, "price": 19500, "tier": "low"}, {"name": "양조식초(2배)18L", "qty": 7.0, "price": 18500, "tier": "low"}, {"name": "비닐(흰색)100L", "qty": 7.0, "price": 9000, "tier": "low"}, {"name": "애호박(야채)낱게", "qty": 6.0, "price": 1800, "tier": "low"}, {"name": "통모짜렐라블럭치즈(수입)조흥 [2.4kg]", "qty": 6.0, "price": 26500, "tier": "low"}, {"name": "유부슬라이스(두솔)냉동 [500g]", "qty": 6.0, "price": 5500, "tier": "low"}, {"name": "부탄가스(메가) [1B]", "qty": 6.0, "price": 26000, "tier": "low"}, {"name": "돼지고기(전지)국내산 [1KG]", "qty": 5.7, "price": 14500, "tier": "low"}, {"name": "닭(닭도리용) [10호]", "qty": 5.0, "price": 6500, "tier": "low"}, {"name": "건더기스프(동원) [500g]", "qty": 5.0, "price": 8500, "tier": "low"}, {"name": "식초(환만) [15L]", "qty": 5.0, "price": 17300, "tier": "low"}, {"name": "시치미(엠스산업) [240g]", "qty": 5.0, "price": 4800, "tier": "low"}, {"name": "파마산치즈(아담스) [1kg]", "qty": 5.0, "price": 12500, "tier": "low"}, {"name": "진라면(컵라면)매운맛 [1B(12개입)]", "qty": 5.0, "price": 15000, "tier": "low"}, {"name": "감자(야채)왕특 [1kg]", "qty": 4.78, "price": 5000, "tier": "low"}, {"name": "사조김(야끼용)10봉씩", "qty": 4.0, "price": 30500, "tier": "low"}, {"name": "불고기햄(미주식품) [1kg]", "qty": 4.0, "price": 3300, "tier": "low"}, {"name": "퐁퐁(골드)통", "qty": 3.0, "price": 8500, "tier": "low"}, {"name": "고추가루(고운거)중국 [1kg]", "qty": 3.0, "price": 10500, "tier": "low"}, {"name": "몽고간장(마산) [13L]", "qty": 3.0, "price": 25000, "tier": "low"}, {"name": "짬뽕왕뚜껑(18개입) [1B]", "qty": 2.0, "price": 21000, "tier": "low"}, {"name": "흑임자(깨)중국산 [1kg]", "qty": 2.0, "price": 13000, "tier": "low"}, {"name": "휘핑크림(밀락골드)노란색 [1L]", "qty": 2.0, "price": 6500, "tier": "low"}, {"name": "플레인요거트(가당)아워홈 [5kg]", "qty": 2.0, "price": 18000, "tier": "low"}, {"name": "깻잎(야채)1봉", "qty": 2.0, "price": 800, "tier": "low"}, {"name": "고무밴드(대)", "qty": 2.0, "price": 11500, "tier": "low"}, {"name": "두부(팩)가오연(수입) [1.8kg]", "qty": 2.0, "price": 3800, "tier": "low"}, {"name": "롤팩(대)럭셔리 [35*45]", "qty": 2.0, "price": 7000, "tier": "low"}, {"name": "마늘(야채)통 국산 [1kg]", "qty": 2.0, "price": 10000, "tier": "low"}, {"name": "콩나물(야채) [1kg]", "qty": 2.0, "price": 2000, "tier": "low"}, {"name": "파채(야채)파절이 [500g]", "qty": 2.0, "price": 3000, "tier": "low"}, {"name": "진간장(몽고)작은거 [1.8L]", "qty": 2.0, "price": 6500, "tier": "low"}, {"name": "바이오크린톨75% [20L]", "qty": 2.0, "price": 68000, "tier": "low"}, {"name": "미향(오뚜기) [15L]", "qty": 2.0, "price": 25000, "tier": "low"}, {"name": "양배추(야채)1통", "qty": 2.0, "price": 2000, "tier": "low"}, {"name": "콩나물(야채)청정농원 [3.5kg]", "qty": 2.0, "price": 3500, "tier": "low"}, {"name": "청양고추(야채) [1kg]", "qty": 1.4, "price": 8000, "tier": "low"}, {"name": "굴소스(이금기팬더)스파우트팩 [2kg]", "qty": 1.0, "price": 11500, "tier": "low"}, {"name": "교자만두(사조오양) [1.35kg]", "qty": 1.0, "price": 5500, "tier": "low"}, {"name": "미림(롯데) [18L]", "qty": 1.0, "price": 55000, "tier": "low"}, {"name": "케찹(오뚜기)스파우트팩 [3.3kg]", "qty": 1.0, "price": 7000, "tier": "low"}, {"name": "피비원(세제) [20kg]", "qty": 1.0, "price": 19500, "tier": "low"}, {"name": "우스타소스(오뚜기) [2.1L]", "qty": 1.0, "price": 6300, "tier": "low"}, {"name": "물티슈(완벽한하루) [400매]", "qty": 1.0, "price": 7500, "tier": "low"}, {"name": "멸치육수(면사랑) [1.8L]", "qty": 1.0, "price": 9000, "tier": "low"}, {"name": "데리야끼소스(오뚜기) [2kg]", "qty": 1.0, "price": 5600, "tier": "low"}, {"name": "락스(1말) [13L]", "qty": 1.0, "price": 5500, "tier": "low"}, {"name": "미원(청정원) [1kg]", "qty": 1.0, "price": 11500, "tier": "low"}, {"name": "도시락컵라면 [1B]", "qty": 1.0, "price": 18500, "tier": "low"}, {"name": "다시마(풍년식품) [1kg]", "qty": 1.0, "price": 14500, "tier": "low"}, {"name": "2배양조식초(오뚜기) [1.8L]", "qty": 1.0, "price": 4800, "tier": "low"}, {"name": "감자전분(오쉐프) [1kg]", "qty": 1.0, "price": 4500, "tier": "low"}, {"name": "국간장(몽고)작은거 [1.8L]", "qty": 1.0, "price": 7500, "tier": "low"}, {"name": "새송이1봉 [400g]", "qty": 1.0, "price": 1500, "tier": "low"}, {"name": "숙주나물(야채)3.5kg [1B]", "qty": 1.0, "price": 5500, "tier": "low"}, {"name": "베트남고추(수입)월남 [1KG]", "qty": 1.0, "price": 14500, "tier": "low"}, {"name": "허니머스타드(백설)CJ [2kg]", "qty": 1.0, "price": 8000, "tier": "low"}, {"name": "카레(오뚜기)매운맛 [1kg]", "qty": 1.0, "price": 6800, "tier": "low"}, {"name": "진라면(컵라면)순한맛 [1B(12개입)]", "qty": 1.0, "price": 15500, "tier": "low"}, {"name": "오쉐프옛날참기름(오뚜기) [1.8L]", "qty": 1.0, "price": 23800, "tier": "low"}, {"name": "비닐(흰색)50L", "qty": 1.0, "price": 5500, "tier": "low"}, {"name": "진라면(컵라면소컵)매운맛 [1B(15개입)]", "qty": 1.0, "price": 15500, "tier": "low"}, {"name": "초고추장(실장님) [2kg]", "qty": 1.0, "price": 7600, "tier": "low"}, {"name": "생강(야채)통(국산) [1kg]", "qty": 0.8, "price": 10000, "tier": "low"}, {"name": "수입소고기(우민찌)정육 [1kg]", "qty": 0.5, "price": 19500, "tier": "low"}, {"name": "홍고추(야채)1kg", "qty": 0.3, "price": 9000, "tier": "low"}]}], "방서점": [{"icon": "🐟", "name": "삼학도", "unit": "kg", "items": [{"name": "연어(생물)", "qty": 1576.0, "price": 19657, "tier": "hot"}, {"name": "광어", "qty": 860.0, "price": 26217, "tier": "hot"}, {"name": "전복", "qty": 36.0, "price": 20094, "tier": "hot"}, {"name": "도미(국산)", "qty": 19.0, "price": 20417, "tier": "low"}, {"name": "방어(일산)", "qty": 6.0, "price": 23500, "tier": "low"}, {"name": "도미(일산)", "qty": 5.0, "price": 21000, "tier": "low"}, {"name": "바지락(중산)", "qty": 2.0, "price": 6000, "tier": "low"}, {"name": "도다리(광)", "qty": 1.0, "price": 24300, "tier": "low"}]}, {"icon": "🍣", "name": "아노참치", "unit": "", "items": [{"name": "새우노바시30미-베트남", "qty": 623.0, "price": 5500, "tier": "hot"}, {"name": "초밥참소라(9g)-튀르키예(씨케이)", "qty": 583.0, "price": 8900, "tier": "hot"}, {"name": "백미새우(12g)-베트남", "qty": 575.0, "price": 6300, "tier": "hot"}, {"name": "초밥계란-국내", "qty": 512.0, "price": 4936, "tier": "hot"}, {"name": "초밥아까에비16g-아르헨티나(new)", "qty": 325.0, "price": 6307, "tier": "hot"}, {"name": "초새우6LH(목단)-태국", "qty": 270.0, "price": 7296, "tier": "hot"}, {"name": "사조초밥김-과세", "qty": 270.0, "price": 3200, "tier": "hot"}, {"name": "안키모-아이씨(중국)", "qty": 255.0, "price": 4200, "tier": "hot"}, {"name": "초밥솔방울한치8g-베트남", "qty": 229.0, "price": 6300, "tier": "hot"}, {"name": "토페도새우(헤드온)-베트남", "qty": 223.0, "price": 6035, "tier": "hot"}, {"name": "황새치대절", "qty": 223.0, "price": 16000, "tier": "hot"}, {"name": "초밥갑오징어-베트남", "qty": 221.0, "price": 4900, "tier": "hot"}, {"name": "우동면(쫄깃한면)", "qty": 220.0, "price": 2600, "tier": "hot"}, {"name": "초밥문어8g-베트남", "qty": 190.0, "price": 7900, "tier": "hot"}, {"name": "크레미파치-인도", "qty": 169.0, "price": 6424, "tier": "hot"}, {"name": "타코와사비-베트남", "qty": 168.0, "price": 20885, "tier": "hot"}, {"name": "아마애비2L-캐나다", "qty": 159.0, "price": 5200, "tier": "hot"}, {"name": "치킨가라아게-태국", "qty": 157.0, "price": 11850, "tier": "hot"}, {"name": "해동지-국내", "qty": 156.0, "price": 3600, "tier": "hot"}, {"name": "락교파우치(삼도)", "qty": 152.0, "price": 10000, "tier": "hot"}, {"name": "민물장어(12미)-중국", "qty": 137.0, "price": 25044, "tier": "hot"}, {"name": "초밥가리비8g-중국", "qty": 111.0, "price": 4717, "tier": "hot"}, {"name": "ANO참치-B:F적신", "qty": 108.0, "price": 35652, "tier": "hot"}, {"name": "냉동라멘", "qty": 107.0, "price": 2800, "tier": "hot"}, {"name": "초생강(백)-중국", "qty": 107.0, "price": 2800, "tier": "hot"}, {"name": "날치알(레드)-수입", "qty": 105.0, "price": 13161, "tier": "hot"}, {"name": "백미새우(16g)-베트남", "qty": 395.0, "price": 3964, "tier": "mid"}, {"name": "키조개관자(16:20)-중국", "qty": 94.0, "price": 20143, "tier": "mid"}, {"name": "감자말이새우-베트남", "qty": 92.0, "price": 5000, "tier": "mid"}, {"name": "삼광999미니와사비", "qty": 87.0, "price": 14700, "tier": "mid"}, {"name": "오뚜기)마요네즈-파우치", "qty": 70.0, "price": 15000, "tier": "mid"}, {"name": "버팔로봉-태국", "qty": 53.0, "price": 13200, "tier": "mid"}, {"name": "ANO참치-B:F4번도로(60상)", "qty": 48.0, "price": 51667, "tier": "mid"}, {"name": "버팔로윙-태국", "qty": 44.0, "price": 16176, "tier": "mid"}, {"name": "초밥유부(미니)-일본", "qty": 43.0, "price": 6900, "tier": "mid"}, {"name": "오징어다리튀김", "qty": 43.0, "price": 11500, "tier": "mid"}, {"name": "감태-국내", "qty": 35.0, "price": 4700, "tier": "mid"}, {"name": "유림바다장어-페루", "qty": 30.0, "price": 18500, "tier": "mid"}, {"name": "게맛살튀김-중국", "qty": 24.0, "price": 6000, "tier": "mid"}, {"name": "ANO참치-B:F4번도로(50상)", "qty": 23.0, "price": 50000, "tier": "mid"}, {"name": "멘보샤-베트남", "qty": 20.0, "price": 11500, "tier": "mid"}, {"name": "백미새우(16g)-우원", "qty": 120.0, "price": 3700, "tier": "low"}, {"name": "초밥참소라(7g)-불가리아", "qty": 65.0, "price": 6300, "tier": "low"}, {"name": "초새우4LH(목단)-태국", "qty": 50.0, "price": 5600, "tier": "low"}, {"name": "조제새우(10미)-베트남", "qty": 31.0, "price": 3100, "tier": "low"}, {"name": "초밥참소라10g-터키", "qty": 30.0, "price": 8900, "tier": "low"}, {"name": "감자말이새우20g-베트남", "qty": 30.0, "price": 3200, "tier": "low"}, {"name": "메밀면-프리미엄", "qty": 28.0, "price": 3200, "tier": "low"}, {"name": "초계란(냉장)-국내", "qty": 23.0, "price": 10800, "tier": "low"}, {"name": "유부(슬라이스)-수입", "qty": 19.0, "price": 5500, "tier": "low"}, {"name": "베이컨-수입", "qty": 17.0, "price": 18000, "tier": "low"}, {"name": "날치알(그린)-수입", "qty": 15.0, "price": 14000, "tier": "low"}, {"name": "돈코츠라멘소스-일본", "qty": 10.0, "price": 35500, "tier": "low"}, {"name": "갓스오부시(국물)-국내", "qty": 9.0, "price": 14500, "tier": "low"}, {"name": "타코야끼-중국", "qty": 9.0, "price": 5000, "tier": "low"}, {"name": "화이트슈", "qty": 8.0, "price": 27000, "tier": "low"}, {"name": "초코슈", "qty": 7.0, "price": 27000, "tier": "low"}, {"name": "우동장국", "qty": 7.0, "price": 7000, "tier": "low"}, {"name": "중화면-수입", "qty": 6.0, "price": 2500, "tier": "low"}, {"name": "생물연어-노르웨이", "qty": 6.0, "price": 19100, "tier": "low"}, {"name": "락교파우치(이엔)", "qty": 6.0, "price": 10000, "tier": "low"}, {"name": "생와사비705-중국", "qty": 5.0, "price": 10000, "tier": "low"}, {"name": "초새우5LH(목단)-태국", "qty": 5.0, "price": 5900, "tier": "low"}, {"name": "빵가루-젖은(신일)", "qty": 5.0, "price": 7500, "tier": "low"}, {"name": "이엔미니회전용간장(160)", "qty": 4.0, "price": 5200, "tier": "low"}, {"name": "초밥유부S-일본", "qty": 4.0, "price": 6400, "tier": "low"}, {"name": "블럭치즈 갈바닉-수입산(2.3KG)", "qty": 4.0, "price": 26000, "tier": "low"}, {"name": "목장갑", "qty": 3.0, "price": 2800, "tier": "low"}, {"name": "건더기스프(면사랑)-수입", "qty": 3.0, "price": 5200, "tier": "low"}, {"name": "칠리소스(몬스위트-大)", "qty": 3.0, "price": 33000, "tier": "low"}, {"name": "돈코츠라멘소스(면사랑)", "qty": 2.0, "price": 28000, "tier": "low"}, {"name": "하나갓스오부시-국내", "qty": 2.0, "price": 18000, "tier": "low"}, {"name": "초밥와규스틱-호주", "qty": 2.0, "price": 22500, "tier": "low"}, {"name": "환만식초-국내", "qty": 2.0, "price": 18000, "tier": "low"}, {"name": "미향", "qty": 2.0, "price": 31500, "tier": "low"}, {"name": "치즈가루(파마산)", "qty": 2.0, "price": 11500, "tier": "low"}, {"name": "아귀-중국", "qty": 2.0, "price": 5000, "tier": "low"}, {"name": "건다시마(1k)", "qty": 1.0, "price": 17000, "tier": "low"}, {"name": "레몬-미국", "qty": 1.0, "price": 2700, "tier": "low"}, {"name": "두절새우IQF(31:40)-중국", "qty": 1.0, "price": 16500, "tier": "low"}, {"name": "잡화꿀(청)", "qty": 1.0, "price": 7200, "tier": "low"}, {"name": "세제:퐁퐁(노란통)", "qty": 1.0, "price": 7500, "tier": "low"}, {"name": "양념초장", "qty": 1.0, "price": 8300, "tier": "low"}, {"name": "토페도새우(벌크)-베트남", "qty": 1.0, "price": 11000, "tier": "low"}, {"name": "통깨-수입", "qty": 1.0, "price": 8200, "tier": "low"}, {"name": "한주소금-국내산", "qty": 1.0, "price": 18500, "tier": "low"}, {"name": "후리각께(노리)-국내", "qty": 1.0, "price": 8800, "tier": "low"}]}, {"icon": "🥬", "name": "한국유통", "unit": "", "items": [{"name": "스위트엔젤복숭아(오뚜기)", "qty": 144.0, "price": 720, "tier": "hot"}, {"name": "떠먹는샤인머스캣(오뚜기)", "qty": 144.0, "price": 720, "tier": "hot"}, {"name": "떠먹는애플망고(오뚜기)", "qty": 144.0, "price": 720, "tier": "hot"}, {"name": "무순(야채)플라스틱", "qty": 143.0, "price": 550, "tier": "hot"}, {"name": "떡갈비(임꺽정)삼양", "qty": 113.0, "price": 13800, "tier": "hot"}, {"name": "도시락김(들기름)동원 4.5g", "qty": 72.0, "price": 3850, "tier": "hot"}, {"name": "깐쪽파(야채)", "qty": 30.0, "price": 6136, "tier": "mid"}, {"name": "간마늘(야채)국산", "qty": 28.0, "price": 9000, "tier": "mid"}, {"name": "양파(야채)15Kg", "qty": 21.0, "price": 19158, "tier": "mid"}, {"name": "장갑(면)검정1타", "qty": 21.0, "price": 1900, "tier": "mid"}, {"name": "몽고백된장", "qty": 20.0, "price": 9700, "tier": "mid"}, {"name": "김치(해야)수입", "qty": 20.0, "price": 16965, "tier": "mid"}, {"name": "계란(특란)30구", "qty": 19.0, "price": 7500, "tier": "mid"}, {"name": "종이컵(1B)", "qty": 18.0, "price": 9500, "tier": "mid"}, {"name": "랩(4050)유니", "qty": 15.0, "price": 22500, "tier": "mid"}, {"name": "레몬", "qty": 15.0, "price": 800, "tier": "mid"}, {"name": "무(야채)", "qty": 13.0, "price": 1870, "tier": "mid"}, {"name": "냅킨(테이블)80/60", "qty": 12.0, "price": 7800, "tier": "mid"}, {"name": "돼지고기(전지)국내산", "qty": 12.0, "price": 14000, "tier": "mid"}, {"name": "비닐(흰색)", "qty": 10.0, "price": 5500, "tier": "mid"}, {"name": "종량제봉투(1묶음)노란색", "qty": 10.0, "price": 21700, "tier": "mid"}, {"name": "대파(야채)1단", "qty": 10.0, "price": 2120, "tier": "mid"}, {"name": "뽀로로(음료)딸기", "qty": 24.0, "price": 900, "tier": "low"}, {"name": "뽀로로(음료)사과", "qty": 24.0, "price": 900, "tier": "low"}, {"name": "뽀로로 보리차", "qty": 24.0, "price": 840, "tier": "low"}, {"name": "뽀로로(음료)밀크", "qty": 24.0, "price": 900, "tier": "low"}, {"name": "팽이버섯(야채)낱게", "qty": 11.0, "price": 525, "tier": "low"}, {"name": "몬스위트칠리(코만푸드)", "qty": 9.0, "price": 31167, "tier": "low"}, {"name": "수산(쭈꾸미)절단2L 베트남", "qty": 8.0, "price": 11500, "tier": "low"}, {"name": "미향(오뚜기)", "qty": 8.0, "price": 25000, "tier": "low"}, {"name": "오쉐프옛날참기름(오뚜기)", "qty": 8.0, "price": 23800, "tier": "low"}, {"name": "감자(야채)왕특", "qty": 8.0, "price": 3625, "tier": "low"}, {"name": "건더기스프(동원)", "qty": 8.0, "price": 8500, "tier": "low"}, {"name": "가스오풍쯔유(이엔)", "qty": 8.0, "price": 9300, "tier": "low"}, {"name": "백설탕(제당)", "qty": 8.0, "price": 23500, "tier": "low"}, {"name": "파마산치즈(아담스)", "qty": 8.0, "price": 11750, "tier": "low"}, {"name": "식초(환만)", "qty": 7.0, "price": 17000, "tier": "low"}, {"name": "퐁퐁(골드)통", "qty": 7.0, "price": 8643, "tier": "low"}, {"name": "고등어(펭귄)캔", "qty": 7.0, "price": 2500, "tier": "low"}, {"name": "한주소금", "qty": 7.0, "price": 23000, "tier": "low"}, {"name": "다시마(풍년식품)", "qty": 7.0, "price": 14500, "tier": "low"}, {"name": "마요네즈(오뚜기)스파우트팩", "qty": 7.0, "price": 13800, "tier": "low"}, {"name": "식용유(쉐프원)", "qty": 6.0, "price": 46750, "tier": "low"}, {"name": "맛느타리버섯(야채)", "qty": 6.0, "price": 1100, "tier": "low"}, {"name": "두부(팩)가오연(수입)", "qty": 6.0, "price": 3800, "tier": "low"}, {"name": "통모짜렐라블럭치즈(수입)조흥", "qty": 6.0, "price": 26500, "tier": "low"}, {"name": "순두부(야채)", "qty": 6.0, "price": 600, "tier": "low"}, {"name": "슬라이스치즈(서울)1.8kg", "qty": 6.0, "price": 19500, "tier": "low"}, {"name": "핸드타올(1B)", "qty": 6.0, "price": 25000, "tier": "low"}, {"name": "미원(청정원)", "qty": 6.0, "price": 11500, "tier": "low"}, {"name": "미림(롯데)", "qty": 6.0, "price": 23133, "tier": "low"}, {"name": "콩나물(야채)청정농원", "qty": 5.0, "price": 3500, "tier": "low"}, {"name": "환만식초(롯데)", "qty": 5.0, "price": 2500, "tier": "low"}, {"name": "메밀소바소스(이엔)", "qty": 5.0, "price": 8800, "tier": "low"}, {"name": "백설탕(제일제당)", "qty": 5.0, "price": 6500, "tier": "low"}, {"name": "오리훈제(수입)슬라이스", "qty": 5.0, "price": 8500, "tier": "low"}, {"name": "애호박(야채)낱게", "qty": 5.0, "price": 1800, "tier": "low"}, {"name": "참깨(볶음)수입산", "qty": 5.0, "price": 7500, "tier": "low"}, {"name": "춘장(진미)", "qty": 5.0, "price": 1600, "tier": "low"}, {"name": "꽁치(펭귄)", "qty": 5.0, "price": 3600, "tier": "low"}, {"name": "철수세미(봉)", "qty": 5.0, "price": 450, "tier": "low"}, {"name": "닭(닭도리용)", "qty": 4.0, "price": 7000, "tier": "low"}, {"name": "꿀(잡화)정성", "qty": 4.0, "price": 7000, "tier": "low"}, {"name": "파슬리후레이크(수입)", "qty": 4.0, "price": 6500, "tier": "low"}, {"name": "태양초고추장(해찬들)", "qty": 4.0, "price": 24000, "tier": "low"}, {"name": "혼다시(농심)A 아지노모도", "qty": 4.0, "price": 20450, "tier": "low"}, {"name": "야끼기자미노리-김가루", "qty": 4.0, "price": 6700, "tier": "low"}, {"name": "부탄가스(메가)", "qty": 4.0, "price": 26000, "tier": "low"}, {"name": "양배추(야채)1통", "qty": 4.0, "price": 2625, "tier": "low"}, {"name": "신일빵가루", "qty": 3.0, "price": 7500, "tier": "low"}, {"name": "청양고추(야채)", "qty": 3.0, "price": 11500, "tier": "low"}, {"name": "물티슈(완벽한하루)", "qty": 3.0, "price": 7500, "tier": "low"}, {"name": "양조간장(501)샘표", "qty": 3.0, "price": 11167, "tier": "low"}, {"name": "수세미(수폰지)", "qty": 3.0, "price": 1400, "tier": "low"}, {"name": "꼬시래기(염장)", "qty": 3.0, "price": 10000, "tier": "low"}, {"name": "감자전분(오쉐프)", "qty": 3.0, "price": 4500, "tier": "low"}, {"name": "가스오브시(국물용)해울찬", "qty": 3.0, "price": 11500, "tier": "low"}, {"name": "다시다(제당)소고기", "qty": 3.0, "price": 31500, "tier": "low"}, {"name": "물엿(영남)", "qty": 3.0, "price": 5500, "tier": "low"}, {"name": "사과식초(2배)오뚜기", "qty": 3.0, "price": 24000, "tier": "low"}, {"name": "블럭치즈(수입) 조흥(소렌토)", "qty": 3.0, "price": 26500, "tier": "low"}, {"name": "부대찌개햄(동원)비쉐프", "qty": 3.0, "price": 9800, "tier": "low"}, {"name": "당면(오뚜기)알뜰", "qty": 3.0, "price": 6500, "tier": "low"}, {"name": "소면(오뚜기)알뜰", "qty": 3.0, "price": 8000, "tier": "low"}, {"name": "사골분말가루(목화)", "qty": 2.0, "price": 5500, "tier": "low"}, {"name": "깻잎(야채)1봉", "qty": 2.0, "price": 900, "tier": "low"}, {"name": "박력밀가루(백설)", "qty": 2.0, "price": 4800, "tier": "low"}, {"name": "굴소스(이금기팬더)스파우트팩", "qty": 2.0, "price": 11500, "tier": "low"}, {"name": "고추가루(고운거)중국", "qty": 2.0, "price": 10500, "tier": "low"}, {"name": "깐메추리알", "qty": 2.0, "price": 7900, "tier": "low"}, {"name": "고추가루(청양고운거)중국", "qty": 2.0, "price": 10000, "tier": "low"}, {"name": "신라면(농심)", "qty": 2.0, "price": 24800, "tier": "low"}, {"name": "서울우유(멸균)", "qty": 2.0, "price": 2400, "tier": "low"}, {"name": "참치(사조)", "qty": 2.0, "price": 2600, "tier": "low"}, {"name": "튀김가루(곰표)", "qty": 2.0, "price": 1750, "tier": "low"}, {"name": "참치(동원)", "qty": 2.0, "price": 17500, "tier": "low"}, {"name": "월남쌈16cm(거복푸드)", "qty": 2.0, "price": 1650, "tier": "low"}, {"name": "청오이(야채)", "qty": 2.0, "price": 1000, "tier": "low"}, {"name": "토마토스파게티소스75%(오뚜기)", "qty": 2.0, "price": 5000, "tier": "low"}, {"name": "알배추", "qty": 2.0, "price": 2750, "tier": "low"}, {"name": "수산(시사모-열빙어)L", "qty": 2.0, "price": 6000, "tier": "low"}, {"name": "물만두(사조오양)", "qty": 2.0, "price": 7900, "tier": "low"}, {"name": "봄동(야채)", "qty": 2.0, "price": 6000, "tier": "low"}, {"name": "닭정육(브라질)슬라이스", "qty": 2.0, "price": 18000, "tier": "low"}, {"name": "닭(55호)삼계탕용", "qty": 2.0, "price": 4500, "tier": "low"}, {"name": "돼지고기(삼겹살)대패수입", "qty": 2.0, "price": 12000, "tier": "low"}, {"name": "락스(1말)", "qty": 2.0, "price": 5500, "tier": "low"}, {"name": "숙주나물(야채)", "qty": 2.0, "price": 2000, "tier": "low"}, {"name": "고추가루(굵은거)중국", "qty": 1.0, "price": 10500, "tier": "low"}, {"name": "갈비탕분말(화미)", "qty": 1.0, "price": 13000, "tier": "low"}, {"name": "당근(야채)중국산", "qty": 1.0, "price": 1500, "tier": "low"}, {"name": "돼지고기(등심)국내산", "qty": 1.0, "price": 12000, "tier": "low"}, {"name": "레귤러감자(카벤디쉬)", "qty": 1.0, "price": 8200, "tier": "low"}, {"name": "롤팩(중)럭셔리", "qty": 1.0, "price": 4800, "tier": "low"}, {"name": "멸치육수(면사랑)", "qty": 1.0, "price": 8500, "tier": "low"}, {"name": "새송이1봉", "qty": 1.0, "price": 1600, "tier": "low"}, {"name": "비엔나소세지(사조오양)", "qty": 1.0, "price": 5500, "tier": "low"}, {"name": "부건가스오부시(인도)고명용", "qty": 1.0, "price": 15800, "tier": "low"}, {"name": "비닐(검정)50L", "qty": 1.0, "price": 5500, "tier": "low"}, {"name": "부침가루(곰표)", "qty": 1.0, "price": 1750, "tier": "low"}, {"name": "부추(야채)", "qty": 1.0, "price": 3000, "tier": "low"}, {"name": "몽고간장(마산)", "qty": 1.0, "price": 25000, "tier": "low"}, {"name": "베트남고추(수입)월남", "qty": 1.0, "price": 14500, "tier": "low"}, {"name": "무말랭이양념", "qty": 1.0, "price": 6800, "tier": "low"}, {"name": "데리야끼소스(오뚜기)", "qty": 1.0, "price": 5800, "tier": "low"}, {"name": "떡국떡(흰떡)우진식품", "qty": 1.0, "price": 3500, "tier": "low"}, {"name": "라면(안성탕면)40개입", "qty": 1.0, "price": 32000, "tier": "low"}, {"name": "랩(3050)유니", "qty": 1.0, "price": 14000, "tier": "low"}, {"name": "수리쓰리라차칠리소스", "qty": 1.0, "price": 6000, "tier": "low"}, {"name": "생강(야채)통(국산)", "qty": 1.0, "price": 11500, "tier": "low"}, {"name": "알뜰탕수육(전원푸드락)", "qty": 1.0, "price": 11000, "tier": "low"}, {"name": "육질탄탄베이컨(크레잇)CJ", "qty": 1.0, "price": 11800, "tier": "low"}, {"name": "오쉐프정성가득왕만두(오뚜기)", "qty": 1.0, "price": 8000, "tier": "low"}, {"name": "오징어젓갈(반찬)", "qty": 1.0, "price": 8000, "tier": "low"}, {"name": "오케이후추(승진)", "qty": 1.0, "price": 3500, "tier": "low"}, {"name": "오뎅(사각)사조오양", "qty": 1.0, "price": 2800, "tier": "low"}, {"name": "진라면매운맛(분식점용)", "qty": 1.0, "price": 19500, "tier": "low"}, {"name": "초고추장(실장님)", "qty": 1.0, "price": 7600, "tier": "low"}, {"name": "참치액(이엔)", "qty": 1.0, "price": 13800, "tier": "low"}, {"name": "케찹(오뚜기)스파우트팩", "qty": 1.0, "price": 7000, "tier": "low"}, {"name": "치킨스탁(매기.병)", "qty": 1.0, "price": 12500, "tier": "low"}, {"name": "프리미엄 돈까스(송림)", "qty": 1.0, "price": 16800, "tier": "low"}, {"name": "표고버섯(야채)국내산A", "qty": 1.0, "price": 12833, "tier": "low"}, {"name": "호일(30*30)삼진", "qty": 1.0, "price": 4700, "tier": "low"}, {"name": "하나가스오브시(고명용)500g", "qty": 1.0, "price": 16500, "tier": "low"}, {"name": "후리카케(이엔)", "qty": 1.0, "price": 8500, "tier": "low"}, {"name": "흑후추분말(목화)", "qty": 1.0, "price": 8500, "tier": "low"}]}]};
+const TIER_LABEL = {hot:'매우 빈번', mid:'빈번', low:'가끔'};
+const TIER_EMOJI = {hot:'🔴', mid:'🟡', low:'🟢'};
+
+let currentStore = null;
+let currentVendors = [];
+let filterTier = 'all';
+let searchText = '';
+let installPromptEvent = null;
+
+const root = document.getElementById('vendors');
+const stateKey = () => 'order_' + currentStore;
+let state = {};
+
+function saveState(){ localStorage.setItem(stateKey(), JSON.stringify(state)); }
+function loadState(){ state = JSON.parse(localStorage.getItem(stateKey()) || '{}'); }
+function itemKey(v, i){ return v.name + '|' + i.name; }
+
+// ===== 점포 선택 =====
+document.querySelectorAll('.store-btn').forEach(b => {
+  b.onclick = () => selectStore(b.dataset.store);
+});
+
+function selectStore(name){
+  currentStore = name;
+  currentVendors = STORES[name];
+  localStorage.setItem('lastStore', name);
+  loadState();
+  document.getElementById('picker').classList.add('hide');
+  document.getElementById('header').style.display = '';
+  document.getElementById('metaBlock').style.display = '';
+  document.getElementById('filterBlock').style.display = '';
+  document.getElementById('actionbar').style.display = '';
+  document.getElementById('storeTitle').textContent = '🍣 가라스시 ' + name;
+  render();
+}
+
+function backToPicker(){
+  document.getElementById('picker').classList.remove('hide');
+  document.getElementById('header').style.display = 'none';
+  document.getElementById('metaBlock').style.display = 'none';
+  document.getElementById('filterBlock').style.display = 'none';
+  document.getElementById('actionbar').style.display = 'none';
+}
+window.backToPicker = backToPicker;
+
+// ===== 렌더 =====
+function render(){
+  root.innerHTML = '';
+  currentVendors.forEach((v, vi) => {
+    const sec = document.createElement('section');
+    sec.className = 'vendor';
+    sec.innerHTML = `
+      <div class="vendor-head">
+        <h2>${v.icon} ${v.name}</h2>
+        <div>
+          <span class="count" data-c="${vi}">${v.items.length}</span>
+          <span class="caret">▾</span>
+        </div>
+      </div>
+      <div class="vendor-body"></div>`;
+    const body = sec.querySelector('.vendor-body');
+    sec.querySelector('.vendor-head').onclick = () => sec.classList.toggle('collapsed');
+    let lastTier = null;
+    v.items.forEach((it) => {
+      if(it.tier !== lastTier){
+        const lbl = document.createElement('div');
+        lbl.className = 'tier-group-label';
+        lbl.innerHTML = `<span class="dot ${it.tier}"></span> ${TIER_EMOJI[it.tier]} ${TIER_LABEL[it.tier]}`;
+        body.appendChild(lbl);
+        lastTier = it.tier;
+      }
+      const k = itemKey(v, it);
+      const q = state[k] || '';
+      const row = document.createElement('div');
+      row.className = 'item' + (q ? ' checked' : '');
+      row.dataset.tier = it.tier;
+      row.dataset.name = it.name;
+      const unitStr = v.unit ? (' ' + v.unit) : '';
+      row.innerHTML = `
+        <div class="name">
+          <div class="title">${escapeHTML(it.name)}</div>
+          <div class="info">4개월 ${formatQty(it.qty)}${unitStr} · ${it.price.toLocaleString()}원</div>
+        </div>
+        <div class="qty">
+          <button class="dec">−</button>
+          <input type="number" inputmode="decimal" min="0" step="any" placeholder="0" value="${q}" />
+          <button class="inc">+</button>
+        </div>`;
+      const inp = row.querySelector('input');
+      inp.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if(val === '' || +val === 0){ delete state[k]; row.classList.remove('checked'); }
+        else { state[k] = val; row.classList.add('checked'); }
+        saveState(); updateCounts();
+      });
+      row.querySelector('.dec').onclick = () => {
+        const cur = parseFloat(inp.value) || 0;
+        inp.value = Math.max(0, cur - 1) || '';
+        inp.dispatchEvent(new Event('input'));
+      };
+      row.querySelector('.inc').onclick = () => {
+        const cur = parseFloat(inp.value) || 0;
+        inp.value = cur + 1;
+        inp.dispatchEvent(new Event('input'));
+      };
+      body.appendChild(row);
+    });
+    root.appendChild(sec);
+  });
+  applyFilter();
+  updateCounts();
+}
+
+function formatQty(q){
+  if(Number.isInteger(q)) return q.toLocaleString();
+  return q.toFixed(1);
+}
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function updateCounts(){
+  let total = 0;
+  document.querySelectorAll('.vendor').forEach(sec => {
+    let n = 0;
+    sec.querySelectorAll('.item').forEach(it => {
+      const v = it.querySelector('input').value;
+      if(v && v !== '0') n++;
+    });
+    const c = sec.querySelector('[data-c]');
+    if(n > 0){ c.textContent = n + '건'; c.classList.add('active'); }
+    else { c.textContent = sec.querySelectorAll('.item').length; c.classList.remove('active'); }
+    total += n;
+  });
+  document.getElementById('checkedCount').textContent = total;
+}
+
+function applyFilter(){
+  const q = searchText.toLowerCase();
+  document.querySelectorAll('.item').forEach(it => {
+    const matchTier = filterTier === 'all' || it.dataset.tier === filterTier;
+    const matchSearch = !q || it.dataset.name.toLowerCase().includes(q);
+    it.classList.toggle('hidden', !(matchTier && matchSearch));
+  });
+  document.querySelectorAll('.vendor').forEach(sec => {
+    const visible = Array.from(sec.querySelectorAll('.item')).filter(it => !it.classList.contains('hidden'));
+    sec.classList.toggle('hidden', visible.length === 0);
+    let prev = null; let prevHasVisible = false;
+    sec.querySelectorAll('.tier-group-label, .item').forEach(el => {
+      if(el.classList.contains('tier-group-label')){
+        if(prev && !prevHasVisible) prev.classList.add('hidden');
+        prev = el; prevHasVisible = false;
+        el.classList.remove('hidden');
+      } else if(!el.classList.contains('hidden')) {
+        prevHasVisible = true;
+      }
+    });
+    if(prev && !prevHasVisible) prev.classList.add('hidden');
+  });
+}
+
+document.getElementById('search').addEventListener('input', e => { searchText = e.target.value; applyFilter(); });
+document.querySelectorAll('.tier-filter').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.tier-filter').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    filterTier = b.dataset.tier;
+    applyFilter();
+  };
+});
+
+// ===== 발주서 텍스트 빌드 =====
+function buildText(){
+  const d = document.getElementById('date').value;
+  const w = document.getElementById('writer').value.trim();
+  const lines = [];
+  lines.push(`📋 가라스시 ${currentStore} 발주서`);
+  lines.push(`🗓 ${d || '____-__-__'}${w ? '  /  ✍️ ' + w : ''}`);
+  let total = 0;
+  currentVendors.forEach(v => {
+    const ordered = [];
+    v.items.forEach(it => {
+      const k = itemKey(v, it);
+      const q = state[k];
+      if(q && +q > 0) ordered.push({...it, oq: q});
+    });
+    if(ordered.length === 0) return;
+    lines.push('');
+    lines.push(`━━━━━━━━━━━━━`);
+    lines.push(`${v.icon} ${v.name} (${ordered.length}건)`);
+    lines.push(`━━━━━━━━━━━━━`);
+    ordered.forEach(it => {
+      const unit = v.unit ? (' ' + v.unit) : '';
+      lines.push(`${TIER_EMOJI[it.tier]} ${it.name} — ${it.oq}${unit}`);
+      total++;
+    });
+  });
+  if(total === 0) return `📋 가라스시 ${currentStore} 발주서\n\n(아직 발주 품목이 없습니다)`;
+  lines.push('');
+  lines.push(`✅ 총 ${total}건`);
+  return lines.join('\n');
+}
+
+document.getElementById('btn-preview').onclick = () => {
+  document.getElementById('output').value = buildText();
+  document.getElementById('modal').classList.add('open');
+};
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+window.closeModal = closeModal;
+
+async function copyText(){
+  const text = document.getElementById('output').value;
+  try{ await navigator.clipboard.writeText(text); toast('✔ 복사 완료! 카톡에 붙여넣으세요'); }
+  catch(e){
+    const ta = document.getElementById('output'); ta.select(); document.execCommand('copy');
+    toast('✔ 복사 완료');
+  }
+}
+window.copyText = copyText;
+
+async function shareText(){
+  const text = document.getElementById('output').value;
+  if(navigator.share){
+    try{ await navigator.share({ title:'가라스시 '+currentStore+' 발주서', text }); }
+    catch(e){}
+  } else { copyText(); }
+}
+window.shareText = shareText;
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ===== PWA 설치 안내 =====
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  installPromptEvent = e;
+  if(!localStorage.getItem('installDismissed')){
+    setTimeout(() => document.getElementById('installBanner').classList.add('show'), 3000);
+  }
+});
+document.getElementById('btnInstall').onclick = async () => {
+  if(installPromptEvent){
+    installPromptEvent.prompt();
+    await installPromptEvent.userChoice;
+    installPromptEvent = null;
+  }
+  dismissInstall();
+};
+function dismissInstall(){
+  document.getElementById('installBanner').classList.remove('show');
+  localStorage.setItem('installDismissed', '1');
+}
+window.dismissInstall = dismissInstall;
+
+// ===== 초기화 =====
+document.getElementById('date').valueAsDate = new Date();
+const last = localStorage.getItem('lastStore');
+if(last && STORES[last]){
+  // 마지막 점포로 자동 진입
+  selectStore(last);
+}
+</script>
+</body>
+</html>
