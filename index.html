@@ -39,11 +39,11 @@
   header{position:sticky;top:0;z-index:50;background:var(--primary);color:#fff;
     padding:calc(12px + env(safe-area-inset-top,0)) 14px 12px 14px;
     box-shadow:0 2px 8px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;}
-  header .back{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0;}
+  header .back{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0;min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;}
   header .title{flex:1;min-width:0;}
   header h1{margin:0;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   header .sub{font-size:11px;opacity:.85;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  header .icon-btn{background:none;border:none;color:#fff;font-size:17px;cursor:pointer;padding:0 4px;}
+  header .icon-btn{background:none;border:none;color:#fff;font-size:17px;cursor:pointer;padding:0 4px;min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;}
 
   .vendor-tabs{position:sticky;top:var(--header-h);z-index:45;background:#fff;border-bottom:1px solid var(--gray-300);display:flex;}
   .vendor-tab{flex:1;padding:14px 4px 10px;background:none;border:none;border-bottom:3px solid transparent;font-size:14px;font-weight:600;color:var(--gray-600);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;}
@@ -56,12 +56,12 @@
   .vendor-tab .tab-badge.zero{visibility:hidden;}
 
   .meta{display:flex;gap:8px;padding:10px 12px;background:#fff;border-bottom:1px solid var(--gray-300);}
-  .meta input{flex:1;min-width:0;border:1px solid var(--gray-300);border-radius:8px;padding:9px 11px;font-size:14px;background:var(--gray-50);}
+  .meta input{flex:1;min-width:0;border:1px solid var(--gray-300);border-radius:8px;padding:9px 11px;font-size:16px;background:var(--gray-50);}
   .meta input:focus{outline:none;border-color:var(--primary);background:#fff;}
   .filter{padding:10px 12px;background:#fff;border-bottom:1px solid var(--gray-300);position:sticky;top:calc(var(--header-h) + var(--tabs-h));z-index:40;}
-  .filter input{width:100%;border:1px solid var(--gray-300);border-radius:24px;padding:9px 14px;font-size:14px;background:var(--gray-50);}
+  .filter input{width:100%;border:1px solid var(--gray-300);border-radius:24px;padding:9px 14px;font-size:16px;background:var(--gray-50);}
   .tier-filters{display:flex;gap:5px;margin-top:8px;}
-  .tier-filter{flex:1;min-width:0;padding:6px 4px;border-radius:18px;border:1.5px solid var(--gray-300);background:#fff;font-size:11.5px;font-weight:600;color:var(--gray-600);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tier-filter{flex:1;min-width:0;min-height:36px;padding:6px 4px;border-radius:18px;border:1.5px solid var(--gray-300);background:#fff;font-size:11.5px;font-weight:600;color:var(--gray-600);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .tier-filter.active{color:#fff;border-color:transparent;}
   .tier-filter.active[data-tier="hot"]{background:var(--hot);}
   .tier-filter.active[data-tier="mid"]{background:var(--mid);}
@@ -85,7 +85,7 @@
   .qty-bar{display:flex;align-items:center;gap:5px;flex:0 0 auto;}
   .qty-bar button{width:30px;height:30px;border:1px solid var(--gray-300);background:#fff;border-radius:7px;font-size:17px;font-weight:600;color:var(--primary);cursor:pointer;line-height:1;user-select:none;-webkit-user-select:none;flex:0 0 30px;touch-action:manipulation;}
   .qty-bar button:active{background:var(--gray-100);}
-  .qty-bar input{width:48px;text-align:center;border:1.5px solid var(--gray-300);border-radius:7px;padding:6px 3px;font-size:14px;font-weight:600;background:#fff;flex:0 0 48px;}
+  .qty-bar input{width:48px;text-align:center;border:1.5px solid var(--gray-300);border-radius:7px;padding:6px 3px;font-size:16px;font-weight:600;background:#fff;flex:0 0 48px;}
   .qty-bar input:focus{outline:none;border-color:var(--primary);}
   .qty-bar select{height:30px;border:1px solid var(--gray-300);border-radius:7px;background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path fill='%23595959' d='M2 4l4 5 4-5z'/></svg>") right 4px center/10px no-repeat;padding:0 18px 0 8px;font-size:12px;font-weight:600;color:var(--gray-900);cursor:pointer;-webkit-appearance:none;appearance:none;flex:0 0 60px;width:60px;}
   .qty-bar select:focus{outline:none;border-color:var(--primary);}
@@ -93,13 +93,13 @@
   .other-input{padding:14px 12px 24px;background:var(--gray-50);border-top:1px dashed var(--gray-300);}
   .other-input.search-hidden{display:none;}
   .other-input label{font-size:12px;font-weight:700;color:var(--gray-600);display:block;margin-bottom:6px;}
-  .other-input textarea{width:100%;border:1.5px solid var(--gray-300);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13px;line-height:1.5;background:#fff;resize:vertical;min-height:60px;}
+  .other-input textarea{width:100%;border:1.5px solid var(--gray-300);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:16px;line-height:1.5;background:#fff;resize:vertical;min-height:60px;}
   .other-input textarea:focus{outline:none;border-color:var(--primary);}
   .other-input .hint{font-size:10.5px;color:var(--gray-600);margin-top:4px;}
 
   .actionbar{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0)) 12px;display:flex;gap:8px;border-top:1px solid var(--gray-300);box-shadow:0 -2px 12px rgba(0,0,0,.08);z-index:60;}
   .actionbar .count-pill{flex:0 0 auto;display:flex;align-items:center;padding:0 14px;border-radius:24px;background:var(--gray-100);font-size:13px;font-weight:600;color:var(--gray-600);white-space:nowrap;}
-  .actionbar button{padding:13px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  .actionbar button{min-height:48px;padding:13px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;}
   .actionbar .btn-go{flex:1;background:var(--kakao);color:var(--kakao-text);display:flex;align-items:center;justify-content:center;gap:6px;}
   .actionbar .btn-go:active{background:#E5CC00;}
   .actionbar .btn-go:disabled{background:var(--gray-200);color:var(--gray-600);cursor:not-allowed;}
@@ -110,13 +110,13 @@
   .modal-body h3{margin:0 0 12px;font-size:16px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .modal-body h3 span.t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .modal-body h3 .total{font-size:12px;font-weight:600;color:var(--gray-600);background:var(--gray-100);padding:3px 10px;border-radius:12px;white-space:nowrap;}
-  .modal-body textarea{flex:1;width:100%;min-height:240px;border:1px solid var(--gray-300);border-radius:10px;padding:12px;font-family:inherit;font-size:13px;line-height:1.6;resize:none;background:var(--gray-50);}
+  .modal-body textarea{flex:1;width:100%;min-height:240px;border:1px solid var(--gray-300);border-radius:10px;padding:12px;font-family:inherit;font-size:16px;line-height:1.6;resize:none;background:var(--gray-50);}
   .modal-body textarea.editable{background:#fff;}
   .modal-tabs{display:flex;gap:5px;margin-bottom:8px;}
   .modal-tab{flex:1;min-width:0;padding:7px 4px;border:1.5px solid var(--gray-300);background:#fff;border-radius:18px;font-size:11.5px;font-weight:600;color:var(--gray-600);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .modal-tab.active{background:var(--primary);color:#fff;border-color:transparent;}
   .modal-actions{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;}
-  .modal-actions button{flex:1;min-width:80px;padding:12px 6px;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;}
+  .modal-actions button{flex:1;min-width:80px;min-height:44px;padding:12px 6px;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;}
   .modal .close{background:var(--gray-100);color:var(--gray-900);}
   .modal .btn-copy{background:var(--primary);color:#fff;}
   .modal .btn-kakao{background:var(--kakao);color:var(--kakao-text);}
@@ -144,7 +144,7 @@
   .history-item .h-date{font-size:13px;font-weight:700;color:var(--gray-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .history-item .h-store{font-size:11px;color:var(--gray-600);background:#fff;padding:2px 8px;border-radius:10px;white-space:nowrap;}
   .history-item .h-summary{font-size:12px;color:var(--gray-600);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .history-item .h-del{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--gray-600);font-size:14px;cursor:pointer;padding:2px 6px;border-radius:6px;}
+  .history-item .h-del{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--gray-600);font-size:14px;cursor:pointer;padding:2px 6px;border-radius:6px;min-width:36px;min-height:36px;}
   .history-item .h-del:active{background:var(--gray-200);}
   .history-empty{text-align:center;color:var(--gray-600);font-size:13px;padding:40px 20px;}
 
@@ -157,13 +157,36 @@
   .settings-body h3{margin:0 0 6px;font-size:17px;}
   .settings-body .desc{font-size:12px;color:var(--gray-600);margin-bottom:16px;line-height:1.6;}
   .settings-body label{display:block;font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px;}
-  .settings-body input{width:100%;border:1.5px solid var(--gray-300);border-radius:8px;padding:11px 12px;font-size:14px;font-family:monospace;}
+  .settings-body input{width:100%;border:1.5px solid var(--gray-300);border-radius:8px;padding:11px 12px;font-size:16px;font-family:monospace;}
   .settings-actions{display:flex;gap:8px;margin-top:14px;}
   .settings-actions button{flex:1;padding:12px;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;}
   .settings .save{background:var(--primary);color:#fff;}
   .settings .cancel{background:var(--gray-100);color:var(--gray-900);}
   .settings .guide{margin-top:14px;font-size:11px;color:var(--gray-600);background:var(--gray-50);padding:10px;border-radius:8px;line-height:1.6;}
   .settings .guide a{color:var(--primary);}
+
+  @media (max-width:390px){
+    body{padding-bottom:96px;}
+    header{padding-left:8px;padding-right:8px;gap:4px;}
+    .vendor-tab{min-height:52px;font-size:13px;padding-left:2px;padding-right:2px;}
+    .meta{padding:9px 10px;gap:6px;}
+    .filter{padding:9px 10px;}
+    .tier-filters{gap:4px;}
+    .tier-filter{font-size:11px;padding-left:2px;padding-right:2px;}
+    .item{padding:11px 10px;}
+    .item-row{align-items:flex-start;flex-wrap:wrap;gap:7px;}
+    .item .name{flex:0 0 100%;}
+    .item .name .title{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.35;}
+    .qty-bar{width:100%;justify-content:flex-end;gap:6px;}
+    .qty-bar button{width:38px;height:38px;flex-basis:38px;font-size:20px;border-radius:9px;}
+    .qty-bar input{width:58px;flex-basis:58px;height:38px;padding:7px 4px;}
+    .qty-bar select{width:68px;flex-basis:68px;height:38px;font-size:14px;border-radius:9px;}
+    .actionbar{padding-left:10px;padding-right:10px;}
+    .actionbar .count-pill{padding:0 12px;}
+    .modal-body{padding:16px 14px calc(16px + env(safe-area-inset-bottom,0));}
+    .modal-body textarea{min-height:210px;}
+    .modal-tab{font-size:11px;}
+  }
 
   .hidden{display:none!important;}
 </style>
@@ -183,30 +206,30 @@
 </div>
 
 <header style="display:none" id="header">
-  <button class="back" onclick="backToPicker()">‹</button>
+  <button class="back" onclick="backToPicker()" aria-label="점포 선택으로 돌아가기">‹</button>
   <div class="title">
     <h1 id="storeTitle"></h1>
     <div class="sub" id="storeSub">사용량 많은순 · 빈도색 좌측표시</div>
   </div>
-  <button class="icon-btn" onclick="openHistory()" title="이력">📅</button>
-  <button class="icon-btn" onclick="openSettings()" title="설정">⚙</button>
+  <button class="icon-btn" onclick="openHistory()" title="이력" aria-label="발주 이력 열기">📅</button>
+  <button class="icon-btn" onclick="openSettings()" title="설정" aria-label="설정 열기">⚙</button>
 </header>
 
 <div class="vendor-tabs" id="vendorTabs" style="display:none"></div>
 
 <div class="meta" id="metaBlock" style="display:none">
-  <input id="date" type="date" />
-  <input id="writer" type="text" placeholder="작성자" autocomplete="name" />
+  <input id="date" type="date" aria-label="발주일자" />
+  <input id="writer" type="text" placeholder="작성자" autocomplete="name" aria-label="작성자" />
 </div>
 
 <div class="filter" id="filterBlock" style="display:none">
-  <input id="search" type="search" placeholder="🔍 품목 검색 (다른 탭은 배지에 표시)" />
+  <input id="search" type="search" placeholder="🔍 품목 검색 (다른 탭은 배지에 표시)" aria-label="품목 검색" />
   <div class="tier-filters">
-    <button class="tier-filter active" data-tier="all">전체</button>
-    <button class="tier-filter" data-tier="sel">✔ 선택만</button>
-    <button class="tier-filter" data-tier="hot">🔴</button>
-    <button class="tier-filter" data-tier="mid">🟡</button>
-    <button class="tier-filter" data-tier="low">🟢</button>
+    <button class="tier-filter active" data-tier="all" aria-label="전체 품목 보기">전체</button>
+    <button class="tier-filter" data-tier="sel" aria-label="선택한 품목만 보기">✔ 선택만</button>
+    <button class="tier-filter" data-tier="hot" aria-label="매우 빈번 품목 보기">🔴</button>
+    <button class="tier-filter" data-tier="mid" aria-label="빈번 품목 보기">🟡</button>
+    <button class="tier-filter" data-tier="low" aria-label="가끔 품목 보기">🟢</button>
   </div>
 </div>
 
@@ -276,7 +299,7 @@
       <button class="save" onclick="saveApiKey()">저장</button>
     </div>
     <div class="guide">
-      📌 키 발급: <a href="https://developers.kakao.com" target="_blank">developers.kakao.com</a> 로그인 → 내 앱 추가 → JavaScript 키 복사 → Web 플랫폼에 사이트 주소 등록
+      📌 키 발급: <a href="https://developers.kakao.com" target="_blank" rel="noopener noreferrer">developers.kakao.com</a> 로그인 → 내 앱 추가 → JavaScript 키 복사 → Web 플랫폼에 사이트 주소 등록
     </div>
   </div>
 </div>
@@ -310,8 +333,17 @@ function escapeHTML(s){
 }
 function isValidQty(v){
   if(v === '' || v == null) return false;
+  if(!/^(?:\d+|\d+\.\d+|\.\d+)$/.test(String(v))) return false;
   const n = Number(v);
   return Number.isFinite(n) && n > 0;
+}
+function normalizeQtyInput(value){
+  let cleaned = String(value ?? '').replace(/,/g, '').replace(/[^0-9.]/g, '');
+  const dot = cleaned.indexOf('.');
+  if(dot !== -1){
+    cleaned = cleaned.slice(0, dot + 1) + cleaned.slice(dot + 1).replace(/\./g, '');
+  }
+  return cleaned;
 }
 function formatQty(q){ return Number.isInteger(q) ? q.toLocaleString() : q.toFixed(1); }
 function countOtherLines(text){
@@ -512,10 +544,10 @@ function renderVendors(){
             <div class="info">4개월 ${formatQty(it.qty)} · ${it.price.toLocaleString()}원</div>
           </div>
           <div class="qty-bar">
-            <button class="dec" type="button">−</button>
-            <input type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="0" value="${escapeHTML(q)}" />
-            <button class="inc" type="button">+</button>
-            <select class="unit">
+            <button class="dec" type="button" aria-label="${escapeHTML(it.name)} 수량 줄이기">−</button>
+            <input type="text" inputmode="decimal" pattern="(?:[0-9]+|[0-9]+\\.[0-9]+|\\.[0-9]+)" placeholder="0" value="${escapeHTML(q)}" aria-label="${escapeHTML(it.name)} 수량" />
+            <button class="inc" type="button" aria-label="${escapeHTML(it.name)} 수량 늘리기">+</button>
+            <select class="unit" aria-label="${escapeHTML(it.name)} 단위">
               ${UNIT_OPTIONS.map(uo => `<option value="${escapeHTML(uo)}"${uo===u?' selected':''}>${escapeHTML(uo)}</option>`).join('')}
             </select>
           </div>
@@ -535,7 +567,7 @@ function renderVendors(){
       }
       inp.addEventListener('input', () => {
         // 잘못된 문자 자동 정리
-        const cleaned = inp.value.replace(/[^0-9.]/g, '');
+        const cleaned = normalizeQtyInput(inp.value);
         if(cleaned !== inp.value) inp.value = cleaned;
         commit();
       });
@@ -679,6 +711,15 @@ document.querySelectorAll('.tier-filter').forEach(b => {
     b.classList.add('active'); filterTier = b.dataset.tier; applyFilter();
   };
 });
+function resetFilters(){
+  searchText = '';
+  filterTier = 'all';
+  const search = document.getElementById('search');
+  if(search) search.value = '';
+  document.querySelectorAll('.tier-filter').forEach(b => {
+    b.classList.toggle('active', b.dataset.tier === 'all');
+  });
+}
 
 // 작성자 input 디바운스 저장
 let writerTimer = null;
@@ -859,6 +900,7 @@ async function saveAndReset(silent){
   });
   safeSet(historyKey(), JSON.stringify(history.slice(0, 50)));
   state = {}; otherText = {};
+  resetFilters();
   saveStateImmediate();
   renderVendors();
   updateCounts();
