@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0" />
 <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%231F4E78'/><text x='96' y='128' font-size='110' text-anchor='middle' fill='white'>🍣</text></svg>" />
 <link rel="manifest" href='data:application/json,{"name":"가라스시 발주","short_name":"발주","start_url":"./","display":"standalone","background_color":"%231F4E78","theme_color":"%231F4E78","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27><rect width=%27192%27 height=%27192%27 rx=%2740%27 fill=%27%231F4E78%27/><text x=%2796%27 y=%27128%27 font-size=%27110%27 text-anchor=%27middle%27 fill=%27white%27>🍣</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
-<title>가라스시 발주 v20260529-1218</title>
+<title>가라스시 발주 v20260529-1251</title>
 <style>
   :root{
     --primary:#1F4E78; --kakao:#FEE500; --kakao-text:#3C1E1E;
@@ -178,7 +178,7 @@
   <button class="store-btn" data-store="방서점"><span>📍 방서점</span><span>→</span></button>
   <div class="footer">
     <a onclick="openSettings()">⚙ 카톡 연동</a>
-    <span style="opacity:.5">v20260529-1218</span>
+    <span style="opacity:.5">v20260529-1251</span>
   </div>
 </div>
 
@@ -314,6 +314,16 @@ function isValidQty(v){
   return Number.isFinite(n) && n > 0;
 }
 function formatQty(q){ return Number.isInteger(q) ? q.toLocaleString() : q.toFixed(1); }
+const WEEKDAY_KR = ['일','월','화','수','목','금','토'];
+function dayOfWeek(dateStr){
+  if(!dateStr) return '';
+  // 'YYYY-MM-DD' → 로컬 자정 기준 Date
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr);
+  if(!m) return '';
+  const d = new Date(+m[1], +m[2]-1, +m[3]);
+  if(isNaN(d.getTime())) return '';
+  return WEEKDAY_KR[d.getDay()];
+}
 function countOtherLines(text){
   if(!text) return 0;
   return text.split('\n').filter(l => l.trim()).length;
@@ -719,10 +729,11 @@ function buildOrderData(forVendor){
 function formatOrderText(data){
   const lines = [];
   lines.push(`가라스시 ${currentStore} 발주서`);
-  lines.push(`${data.date || '____-__-__'}${data.writer ? '  /  ' + data.writer : ''}`);
-  data.sections.forEach(({vendor, ordered, otherLines}) => {
+  const dow = dayOfWeek(data.date);
+  lines.push(`${data.date || '____-__-__'}${dow ? ' (' + dow + ')' : ''}`);
+  data.sections.forEach(({vendor, ordered, otherLines}, idx) => {
     const cnt = ordered.length + otherLines.length;
-    lines.push('');
+    if(idx > 0) lines.push('');  // 첫 거래처 위는 빈 줄 없이 바로 붙임
     lines.push(`━━━━━━━━━━━━━`);
     lines.push(`${vendor.name} (${cnt}건)`);
     lines.push(`━━━━━━━━━━━━━`);
