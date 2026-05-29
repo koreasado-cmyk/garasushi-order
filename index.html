@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0" />
 <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%231F4E78'/><text x='96' y='128' font-size='110' text-anchor='middle' fill='white'>🍣</text></svg>" />
 <link rel="manifest" href='data:application/json,{"name":"가라스시 발주","short_name":"발주","start_url":"./","display":"standalone","background_color":"%231F4E78","theme_color":"%231F4E78","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27><rect width=%27192%27 height=%27192%27 rx=%2740%27 fill=%27%231F4E78%27/><text x=%2796%27 y=%27128%27 font-size=%27110%27 text-anchor=%27middle%27 fill=%27white%27>🍣</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
-<title>가라스시 발주 v20260529-1251</title>
+<title>가라스시 발주 v20260529-1259</title>
 <style>
   :root{
     --primary:#1F4E78; --kakao:#FEE500; --kakao-text:#3C1E1E;
@@ -178,7 +178,7 @@
   <button class="store-btn" data-store="방서점"><span>📍 방서점</span><span>→</span></button>
   <div class="footer">
     <a onclick="openSettings()">⚙ 카톡 연동</a>
-    <span style="opacity:.5">v20260529-1251</span>
+    <span style="opacity:.5">v20260529-1259</span>
   </div>
 </div>
 
@@ -196,7 +196,6 @@
 
 <div class="meta" id="metaBlock" style="display:none">
   <input id="date" type="date" />
-  <input id="writer" type="text" placeholder="작성자" autocomplete="name" />
 </div>
 
 <div class="filter" id="filterBlock" style="display:none">
@@ -449,8 +448,6 @@ function selectStore(name){
   document.getElementById('actionbar').style.display = '';
   document.getElementById('storeTitle').textContent = '🍣 ' + name;
   document.getElementById('date').value = todayLocal();
-  const lw = localStorage.getItem(writerKey()) || '';
-  document.getElementById('writer').value = lw;
   renderTabs();
   renderVendors();
   // sticky 변수 실측 갱신
@@ -690,18 +687,9 @@ document.querySelectorAll('.tier-filter').forEach(b => {
   };
 });
 
-// 작성자 input 디바운스 저장
-let writerTimer = null;
-document.getElementById('writer').addEventListener('input', e => {
-  if(writerTimer) clearTimeout(writerTimer);
-  writerTimer = setTimeout(() => {
-    if(currentStore) localStorage.setItem(writerKey(), e.target.value.trim());
-  }, 300);
-});
-
 function buildOrderData(forVendor){
   const d = document.getElementById('date').value;
-  const w = document.getElementById('writer').value.trim();
+  const w = '';
   const sections = [];
   let itemCount = 0, otherCount = 0, totalAmount = 0;
   currentVendors.forEach(v => {
@@ -913,7 +901,7 @@ function renderHistoryList(){
     content.className = 'h-content';
     content.innerHTML = `
       <div class="h-top">
-        <div class="h-date">${escapeHTML(dateStr)} ${h.writer ? '· ' + escapeHTML(h.writer) : ''}</div>
+        <div class="h-date">${escapeHTML(dateStr)}</div>
         <div class="h-store">${tc}건 / ₩${Math.round(h.totalAmount||0).toLocaleString()}</div>
       </div>
       <div class="h-summary">${escapeHTML(summary)}</div>`;
