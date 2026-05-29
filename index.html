@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0" />
 <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%231F4E78'/><text x='96' y='128' font-size='110' text-anchor='middle' fill='white'>🍣</text></svg>" />
 <link rel="manifest" href='data:application/json,{"name":"가라스시 발주","short_name":"발주","start_url":"./","display":"standalone","background_color":"%231F4E78","theme_color":"%231F4E78","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27><rect width=%27192%27 height=%27192%27 rx=%2740%27 fill=%27%231F4E78%27/><text x=%2796%27 y=%27128%27 font-size=%27110%27 text-anchor=%27middle%27 fill=%27white%27>🍣</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
-<title>가라스시 발주 v20260528-1753</title>
+<title>가라스시 발주 v20260529-1218</title>
 <style>
   :root{
     --primary:#1F4E78; --kakao:#FEE500; --kakao-text:#3C1E1E;
@@ -178,7 +178,7 @@
   <button class="store-btn" data-store="방서점"><span>📍 방서점</span><span>→</span></button>
   <div class="footer">
     <a onclick="openSettings()">⚙ 카톡 연동</a>
-    <span style="opacity:.5">v20260528-1753</span>
+    <span style="opacity:.5">v20260529-1218</span>
   </div>
 </div>
 
@@ -737,10 +737,6 @@ function formatOrderText(data){
   if(data.itemCount === 0 && data.otherCount === 0){
     return `가라스시 ${currentStore} 발주서\n\n(아직 발주 품목이 없습니다)`;
   }
-  lines.push('');
-  const totalAll = data.itemCount + data.otherCount;
-  const otherStr = data.otherCount ? ` (목록 ${data.itemCount} + 기타 ${data.otherCount})` : '';
-  lines.push(`총 ${totalAll}건${otherStr} · 예상 ₩${Math.round(data.totalAmount).toLocaleString()} (참고, 단위 환산 미포함)`);
   return lines.join('\n');
 }
 
