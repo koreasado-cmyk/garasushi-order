@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icon.svg" />
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link rel="manifest" href="manifest.json" />
-<title>가라스시 발주 v20260529-1851</title>
+<title>가라스시 발주 v20260529-1856</title>
 <style>
   :root{
     --primary:#1F4E78; --kakao:#FEE500; --kakao-text:#3C1E1E;
@@ -128,7 +128,16 @@
   .other-input .hint{font-size:11.5px;color:var(--gray-600);margin-top:6px;line-height:1.4;}
 
   .actionbar{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:12px 12px calc(12px + env(safe-area-inset-bottom,0)) 12px;display:flex;gap:8px;border-top:1px solid var(--gray-300);box-shadow:0 -2px 12px rgba(0,0,0,.08);z-index:60;}
-  .actionbar .count-pill{flex:0 0 auto;display:flex;align-items:center;padding:0 16px;border-radius:24px;background:var(--gray-100);font-size:14px;font-weight:700;color:var(--gray-600);white-space:nowrap;}
+  .actionbar .count-pill{
+    flex:0 0 auto;display:inline-flex;align-items:center;padding:0 16px;
+    border-radius:24px;background:var(--gray-100);font-size:14px;font-weight:700;
+    color:var(--gray-600);white-space:nowrap;border:none;cursor:pointer;
+    transition:background .15s;
+  }
+  .actionbar .count-pill:not(:disabled){background:var(--primary);color:#fff;}
+  .actionbar .count-pill:not(:disabled) span{color:#fff;}
+  .actionbar .count-pill:not(:disabled):active{background:#163E5F;}
+  .actionbar .count-pill:disabled{cursor:not-allowed;opacity:.7;}
   .actionbar .count-pill span{color:var(--primary);margin-right:2px;font-size:16px;}
   .actionbar button{padding:14px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;white-space:nowrap;}
   .actionbar .btn-go{flex:1;background:var(--kakao);color:var(--kakao-text);display:flex;align-items:center;justify-content:center;gap:6px;}
@@ -179,6 +188,24 @@
   .history-item .h-del:active{background:var(--gray-200);}
   .history-empty{text-align:center;color:var(--gray-600);font-size:13px;padding:40px 20px;}
 
+  /* 선택 품목 모달 */
+  .selected-list{flex:1;overflow:auto;display:flex;flex-direction:column;gap:12px;margin-bottom:14px;}
+  .selected-vendor{background:var(--gray-50);border-radius:12px;padding:14px;border:1px solid var(--gray-200);}
+  .selected-vendor-head{font-size:14px;font-weight:700;color:var(--gray-900);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .selected-vendor-head .vc{font-size:12px;color:#fff;background:var(--primary);padding:3px 10px;border-radius:10px;font-weight:700;white-space:nowrap;}
+  .selected-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 12px;background:#fff;border-radius:8px;margin-bottom:6px;border:1px solid var(--gray-200);cursor:pointer;}
+  .selected-item:last-child{margin-bottom:0;}
+  .selected-item:active{background:var(--gray-100);}
+  .selected-item .si-name{flex:1;min-width:0;font-size:14px;font-weight:500;color:var(--gray-900);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;line-height:1.35;}
+  .selected-item .si-qty{font-size:14px;font-weight:700;color:var(--primary);white-space:nowrap;flex:0 0 auto;}
+  .selected-item.other{cursor:default;background:#FFF9E5;border-color:#F0DE94;}
+  .selected-item.other .si-qty{color:#A07E00;font-size:11px;}
+  .selected-item .jump-arrow{color:var(--gray-300);font-size:14px;flex:0 0 auto;}
+  .selected-empty{text-align:center;color:var(--gray-600);font-size:13px;padding:40px 20px;line-height:1.6;}
+
+  /* 점프 시 강조 효과 */
+  .item.flash{box-shadow:inset 0 0 0 3px var(--primary);transition:box-shadow .3s;}
+
   .toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);color:#fff;padding:14px 22px;border-radius:26px;font-size:14px;font-weight:600;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center;}
   .toast.show{opacity:1;}
 
@@ -209,7 +236,7 @@
   <button class="store-btn" data-store="방서점"><span>📍 방서점</span><span>→</span></button>
   <div class="footer">
     <a onclick="openSettings()">⚙ 카톡 연동</a>
-    <span style="opacity:.5">v20260529-1851</span>
+    <span style="opacity:.5">v20260529-1856</span>
   </div>
 </div>
 
@@ -244,7 +271,9 @@
 <div id="vendors"></div>
 
 <div class="actionbar" id="actionbar" style="display:none">
-  <div class="count-pill"><span id="checkedCount">0</span>건</div>
+  <button class="count-pill" id="btn-showSelected" type="button" aria-label="선택된 품목 보기" disabled>
+    <span id="checkedCount">0</span>건 ▸
+  </button>
   <button class="btn-go" id="btn-preview" disabled>💬 발주서 보내기</button>
 </div>
 
@@ -259,6 +288,17 @@
       <button class="btn-copy" id="btn-copy">📋 복사</button>
       <button class="btn-kakao" id="btn-send">💬 카톡</button>
       <button class="btn-save" id="btn-saveReset">💾 저장+초기화</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="selectedModal" role="dialog" aria-modal="true" aria-labelledby="selected-title">
+  <div class="modal-body">
+    <h3 id="selected-title"><span class="t">✔ 선택된 품목</span> <span class="total" id="selectedTotalBadge">0건</span></h3>
+    <div class="selected-list" id="selectedList"></div>
+    <div class="modal-actions">
+      <button class="close" data-close="selectedModal">닫기</button>
+      <button class="btn-kakao" id="btn-previewFromSelected">💬 발주서 보내기</button>
     </div>
   </div>
 </div>
@@ -738,6 +778,7 @@ function updateCounts(){
   });
   document.getElementById('checkedCount').textContent = total;
   document.getElementById('btn-preview').disabled = total === 0;
+  document.getElementById('btn-showSelected').disabled = total === 0;
   const sub = document.getElementById('storeSub');
   if(sub) sub.textContent = total > 0
     ? `${total}건 선택됨 (목록 ${totalItems}${totalOther ? ' + 기타 ' + totalOther : ''})`
@@ -868,6 +909,112 @@ function renderModalTabs(){
 
 document.getElementById('btn-preview').onclick = () => {
   if(document.getElementById('btn-preview').disabled) return;
+  modalActiveVendor = 'all';
+  renderModalTabs();
+  refreshPreview();
+  openModal('modal');
+};
+
+// ===== 선택된 품목 보기 모달 =====
+function openSelectedList(){
+  const list = document.getElementById('selectedList');
+  list.innerHTML = '';
+  let totalCount = 0;
+  let hasAny = false;
+  currentVendors.forEach((v, vi) => {
+    const ordered = [];
+    v.items.forEach(it => {
+      const k = itemKey(v, it);
+      const s = state[k];
+      if(s && isValidQty(s.qty)){
+        ordered.push({...it, oq: s.qty, ou: s.unit || it.defaultUnit || v.defaultUnit || '낱개'});
+      }
+    });
+    const otherLines = (otherText[v.name] || '').split('\n').map(l => l.trim()).filter(Boolean);
+    if(ordered.length === 0 && otherLines.length === 0) return;
+    hasAny = true;
+    const cnt = ordered.length + otherLines.length;
+    totalCount += cnt;
+
+    const block = document.createElement('div');
+    block.className = 'selected-vendor';
+    const head = document.createElement('div');
+    head.className = 'selected-vendor-head';
+    head.innerHTML = `<span>${escapeHTML(v.icon)} ${escapeHTML(v.name)}</span><span class="vc">${cnt}건</span>`;
+    block.appendChild(head);
+
+    ordered.forEach(it => {
+      const row = document.createElement('div');
+      row.className = 'selected-item';
+      row.title = '탭하면 해당 품목으로 이동';
+      row.innerHTML = `
+        <div class="si-name">${escapeHTML(it.name)}</div>
+        <div class="si-qty">${escapeHTML(String(it.oq))} ${escapeHTML(it.ou)}</div>
+        <span class="jump-arrow">›</span>`;
+      row.onclick = () => jumpToItem(vi, it.name);
+      block.appendChild(row);
+    });
+
+    otherLines.forEach(line => {
+      const row = document.createElement('div');
+      row.className = 'selected-item other';
+      row.innerHTML = `
+        <div class="si-name">📝 ${escapeHTML(line)}</div>
+        <div class="si-qty">기타</div>`;
+      block.appendChild(row);
+    });
+
+    list.appendChild(block);
+  });
+
+  if(!hasAny){
+    const e = document.createElement('div');
+    e.className = 'selected-empty';
+    e.innerHTML = '선택된 품목이 없습니다.<br/><br/><span style="font-size:11px">품목 옆 + 버튼이나 숫자 입력으로<br/>발주 품목을 선택하세요.</span>';
+    list.appendChild(e);
+  }
+
+  document.getElementById('selectedTotalBadge').textContent = totalCount + '건';
+  openModal('selectedModal');
+}
+
+// 선택 모달에서 품목 클릭 → 해당 거래처 탭으로 이동 + 스크롤 + 강조
+function jumpToItem(vendorIdx, itemName){
+  closeModal('selectedModal');
+  if(activeVendorIdx !== vendorIdx){
+    activeVendorIdx = vendorIdx;
+    renderTabs();
+    showActiveVendor();
+  }
+  // 필터 해제 후 스크롤 (필터 켜진 상태에서 안 보일 수 있음)
+  if(filterTier !== 'all' || searchText){
+    document.querySelectorAll('.tier-filter').forEach(x => {
+      x.classList.toggle('active', x.dataset.tier === 'all');
+      x.setAttribute('aria-pressed', x.dataset.tier === 'all' ? 'true' : 'false');
+    });
+    filterTier = 'all'; searchText = '';
+    document.getElementById('search').value = '';
+    applyFilter();
+  }
+  setTimeout(() => {
+    const sel = `.vendor-body[data-vi="${vendorIdx}"] .item[data-name="${(window.CSS && CSS.escape) ? CSS.escape(itemName) : itemName.replace(/"/g, '\\"')}"]`;
+    const target = document.querySelector(sel);
+    if(target){
+      target.scrollIntoView({behavior:'smooth', block:'center'});
+      target.classList.add('flash');
+      setTimeout(() => target.classList.remove('flash'), 1500);
+    }
+  }, 150);
+}
+
+document.getElementById('btn-showSelected').onclick = () => {
+  if(document.getElementById('btn-showSelected').disabled) return;
+  openSelectedList();
+};
+
+document.getElementById('btn-previewFromSelected').onclick = () => {
+  closeModal('selectedModal');
+  // 그대로 발주서 미리보기로 이어짐
   modalActiveVendor = 'all';
   renderModalTabs();
   refreshPreview();
