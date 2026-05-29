@@ -1,0 +1,19 @@
+{
+  "name": "가라스시 발주",
+  "short_name": "가라스시 발주",
+  "description": "가라스시 가경점·방서점 발주 체크리스트",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#1F4E78",
+  "theme_color": "#1F4E78",
+  "orientation": "portrait",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

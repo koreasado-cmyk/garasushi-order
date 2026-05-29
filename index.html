@@ -7,12 +7,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="가라스시 발주" />
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
-<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%231F4E78'/><text x='96' y='128' font-size='110' text-anchor='middle' fill='white'>🍣</text></svg>" />
-<link rel="manifest" href='data:application/json,{"name":"가라스시 발주","short_name":"발주","start_url":"./","display":"standalone","background_color":"%231F4E78","theme_color":"%231F4E78","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27><rect width=%27192%27 height=%27192%27 rx=%2740%27 fill=%27%231F4E78%27/><text x=%2796%27 y=%27128%27 font-size=%27110%27 text-anchor=%27middle%27 fill=%27white%27>🍣</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
-<title>가라스시 발주 v20260529-1317</title>
+<!-- 캐시는 Service Worker가 관리 (network-first → 캐시 폴백) -->
+<meta http-equiv="Cache-Control" content="no-cache" />
+<!-- Chrome PWA 설치 가능: 별도 manifest.json 파일 필요 (data: URL은 Chrome 거부) -->
+<link rel="apple-touch-icon" href="icon.svg" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="manifest" href="manifest.json" />
+<title>가라스시 발주 v20260529-1844</title>
 <style>
   :root{
     --primary:#1F4E78; --kakao:#FEE500; --kakao-text:#3C1E1E;
@@ -26,15 +27,15 @@
   html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'맑은 고딕','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--gray-50);color:var(--gray-900);font-size:15px;line-height:1.4;}
   body{padding-bottom:90px;}
 
-  .picker{position:fixed;inset:0;background:linear-gradient(180deg,#1F4E78 0%,#163E5F 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;z-index:1000;}
+  .picker{position:fixed;inset:0;background:#fff;color:var(--gray-900);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;z-index:1000;}
   .picker.hide{display:none;}
-  .picker .logo{font-size:64px;margin-bottom:8px;}
-  .picker h1{margin:0;font-size:22px;font-weight:700;}
-  .picker .tagline{margin:6px 0 30px;font-size:13px;opacity:.8;}
-  .picker .store-btn{width:100%;max-width:340px;padding:22px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);border-radius:18px;color:#fff;font-size:18px;font-weight:700;margin-bottom:14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;}
-  .picker .store-btn:active{background:rgba(255,255,255,.22);}
-  .picker .footer{margin-top:30px;font-size:12px;opacity:.7;display:flex;gap:14px;align-items:center;}
-  .picker .footer a{color:#fff;text-decoration:underline;cursor:pointer;}
+  .picker .logo{width:min(82vw,420px);height:auto;margin-bottom:18px;display:block;}
+  .picker h1{margin:0;font-size:16px;font-weight:600;color:var(--gray-600);letter-spacing:1px;}
+  .picker .tagline{margin:4px 0 30px;font-size:12px;color:var(--gray-600);opacity:.7;}
+  .picker .store-btn{width:100%;max-width:340px;padding:20px 22px;background:var(--primary);border:none;border-radius:14px;color:#fff;font-size:18px;font-weight:700;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 14px rgba(31,78,120,.18);}
+  .picker .store-btn:active{background:#163E5F;transform:scale(.98);}
+  .picker .footer{margin-top:30px;font-size:12px;color:var(--gray-600);opacity:.8;display:flex;gap:14px;align-items:center;}
+  .picker .footer a{color:var(--primary);text-decoration:underline;cursor:pointer;}
 
   header{position:sticky;top:0;z-index:50;background:var(--primary);color:#fff;
     padding:calc(12px + env(safe-area-inset-top,0)) 14px 12px 14px;
@@ -59,8 +60,8 @@
   .meta input{flex:1;min-width:0;border:1px solid var(--gray-300);border-radius:8px;padding:9px 11px;font-size:14px;background:var(--gray-50);}
   .meta input:focus{outline:none;border-color:var(--primary);background:#fff;}
   .weekday-chip{flex:0 0 auto;padding:9px 14px;background:var(--primary);color:#fff;border-radius:8px;font-size:14px;font-weight:700;white-space:nowrap;min-width:46px;text-align:center;}
-  .weekday-chip.sat{background:#1F4E78;}
-  .weekday-chip.sun{background:#C00000;}
+  .weekday-chip.sat{background:#2E75B6;}  /* 토 - 밝은 파랑 (평일과 구분) */
+  .weekday-chip.sun{background:#C00000;}  /* 일 - 빨강 */
   .filter{padding:10px 12px;background:#fff;border-bottom:1px solid var(--gray-300);position:sticky;top:calc(var(--header-h) + var(--tabs-h));z-index:40;}
   .filter input{width:100%;border:1px solid var(--gray-300);border-radius:24px;padding:9px 14px;font-size:14px;background:var(--gray-50);}
   .tier-filters{display:flex;gap:5px;margin-top:8px;}
@@ -174,14 +175,14 @@
 <body>
 
 <div class="picker" id="picker">
-  <div class="logo">🍣</div>
-  <h1>가라스시 발주</h1>
+  <img class="logo" src="logo.png" alt="가라스시" />
+  <h1>발주 시스템</h1>
   <div class="tagline">점포를 선택하세요</div>
   <button class="store-btn" data-store="가경점"><span>📍 가경점</span><span>→</span></button>
   <button class="store-btn" data-store="방서점"><span>📍 방서점</span><span>→</span></button>
   <div class="footer">
     <a onclick="openSettings()">⚙ 카톡 연동</a>
-    <span style="opacity:.5">v20260529-1317</span>
+    <span style="opacity:.5">v20260529-1844</span>
   </div>
 </div>
 
@@ -195,7 +196,7 @@
   <button class="icon-btn" onclick="openSettings()" title="설정">⚙</button>
 </header>
 
-<div class="vendor-tabs" id="vendorTabs" style="display:none"></div>
+<div class="vendor-tabs" id="vendorTabs" role="tablist" style="display:none"></div>
 
 <div class="meta" id="metaBlock" style="display:none">
   <input id="date" type="date" />
@@ -220,12 +221,12 @@
   <button class="btn-go" id="btn-preview" disabled>💬 발주서 보내기</button>
 </div>
 
-<div class="modal" id="modal">
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal-body">
-    <h3><span class="t">📋 발주서 미리보기</span> <span class="total" id="totalAmount">₩0</span></h3>
+    <h3 id="modal-title"><span class="t">📋 발주서 미리보기</span> <span class="total" id="totalAmount">₩0</span></h3>
     <div class="modal-tabs" id="modalTabs"></div>
-    <textarea id="output" class="editable"></textarea>
-    <div class="preview-hint">💡 텍스트를 직접 수정해서 보낼 수 있어요</div>
+    <textarea id="output" class="editable" aria-label="발주서 텍스트"></textarea>
+    <div class="preview-hint">💡 텍스트를 직접 수정해서 보낼 수 있어요. 저장+초기화 시 이 내용 그대로 이력에 저장됩니다.</div>
     <div class="modal-actions">
       <button class="close" data-close="modal">닫기</button>
       <button class="btn-copy" id="btn-copy">📋 복사</button>
@@ -235,9 +236,9 @@
   </div>
 </div>
 
-<div class="modal" id="historyModal">
+<div class="modal" id="historyModal" role="dialog" aria-modal="true" aria-labelledby="history-title">
   <div class="modal-body">
-    <h3><span class="t">📅 발주 이력</span></h3>
+    <h3 id="history-title"><span class="t">📅 발주 이력</span></h3>
     <div class="history-list" id="historyList"></div>
     <div class="modal-actions">
       <button class="close" data-close="historyModal">닫기</button>
@@ -245,9 +246,9 @@
   </div>
 </div>
 
-<div class="modal" id="historyDetailModal">
+<div class="modal" id="historyDetailModal" role="dialog" aria-modal="true" aria-labelledby="histdetail-title">
   <div class="modal-body">
-    <h3><span class="t">📋 이력 상세</span> <span class="total" id="histTotal">₩0</span></h3>
+    <h3 id="histdetail-title"><span class="t">📋 이력 상세</span> <span class="total" id="histTotal">₩0</span></h3>
     <textarea id="histOutput" readonly></textarea>
     <div class="modal-actions">
       <button class="close" data-close="historyDetailModal">닫기</button>
@@ -258,7 +259,7 @@
 </div>
 
 <!-- 커스텀 confirm 모달 -->
-<div class="confirm-modal" id="confirmModal">
+<div class="confirm-modal" id="confirmModal" role="alertdialog" aria-modal="true" aria-labelledby="confirmText">
   <div class="confirm-body">
     <div class="msg" id="confirmText"></div>
     <div class="actions">
@@ -295,10 +296,16 @@ const TIER_EMOJI = {hot:'🔴', mid:'🟡', low:'🟢'};
 const UNIT_OPTIONS = ['낱개', '박스', '묶음', '봉', '팩', '단', '통', 'kg', 'g', '마리', '미'];
 const SEP = '';  // Unit Separator - 식자재명에 절대 안 들어가는 제어문자
 
-// ===== 유틸 =====
+// ===== 유틸 (localStorage 안전 wrapper) =====
+function safeGet(key){
+  try{ return localStorage.getItem(key); } catch(e){ return null; }
+}
+function safeRemove(key){
+  try{ localStorage.removeItem(key); } catch(e){}
+}
 function safeParse(key, fallback){
   try{
-    const raw = localStorage.getItem(key);
+    const raw = safeGet(key);
     if(!raw) return fallback;
     const v = JSON.parse(raw);
     return v == null ? fallback : v;
@@ -347,25 +354,39 @@ function countOtherLines(text){
 function safeSet(key, value){
   try{ localStorage.setItem(key, value); return true; }
   catch(e){
-    if(e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014)){
-      // 오래된 이력 절반 잘라내고 재시도
-      const hk = historyKey();
-      const hist = safeParse(hk, []);
-      if(hist.length > 1){
-        const trimmed = hist.slice(0, Math.max(5, Math.floor(hist.length / 2)));
+    if(!e || !(e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014)){
+      console.warn('set fail', key, e);
+      return false;
+    }
+    const hk = historyKey();
+    // 케이스 A: 이력 자체 저장 실패 → 들어온 value(이력 JSON)를 줄여서 저장
+    if(key === hk){
+      let parsed = null;
+      try { parsed = JSON.parse(value); } catch(_) {}
+      if(Array.isArray(parsed) && parsed.length > 1){
+        const trimmed = parsed.slice(0, Math.max(5, Math.floor(parsed.length / 2)));
         try{
           localStorage.setItem(hk, JSON.stringify(trimmed));
-          localStorage.setItem(key, value);
-          toast('⚠ 저장공간 부족 - 오래된 이력 일부 삭제');
+          toast('⚠ 저장공간 부족 - 새 이력 일부만 저장');
           return true;
-        } catch(e2){
-          toast('⚠ 저장공간 부족 - 이력을 정리해 주세요'); return false;
-        }
+        } catch(e2){ toast('⚠ 저장공간 부족'); return false; }
       }
       toast('⚠ 저장공간 부족'); return false;
     }
-    console.warn('set fail', key, e);
-    return false;
+    // 케이스 B: 다른 키 저장 실패 → 기존 이력 절반 잘라 공간 확보 후 재시도
+    const hist = safeParse(hk, []);
+    if(Array.isArray(hist) && hist.length > 1){
+      const trimmed = hist.slice(0, Math.max(5, Math.floor(hist.length / 2)));
+      try{
+        localStorage.setItem(hk, JSON.stringify(trimmed));
+        localStorage.setItem(key, value);
+        toast('⚠ 저장공간 부족 - 오래된 이력 일부 삭제');
+        return true;
+      } catch(e2){
+        toast('⚠ 저장공간 부족 - 이력을 정리해 주세요'); return false;
+      }
+    }
+    toast('⚠ 저장공간 부족'); return false;
   }
 }
 
@@ -383,14 +404,25 @@ let userEditedPreview = false;
 function stateKey(){ return 'order_' + currentStore; }
 function otherKey(){ return 'other_' + currentStore; }
 function historyKey(){ return 'history_' + currentStore; }
-function writerKey(){ return 'writer_' + currentStore; }
 
-// itemKey: 안전 구분자(U+001F) + 인덱스 → 충돌 방지
-function itemKey(v, i){ return v.name + SEP + i._idx + SEP + i.name; }
+// itemKey: 거래처명 + 안전구분자(U+001F) + 품목명 (+ 중복 시 카운터)
+// 이름 기반이라 데이터 재정렬에도 영구 안정. 향후 동일 이름 중복 시 _dupIdx 사용.
+function itemKey(v, i){
+  const dup = i._dupIdx ? SEP + i._dupIdx : '';
+  return v.name + SEP + i.name + dup;
+}
 
-// 점포 진입 시 모든 아이템에 _idx 부여 (안정 키 보장)
+// 점포 진입 시 동일 이름이 있으면 _dupIdx 부여 (현재 데이터엔 없지만 미래 대비)
 function indexItems(){
-  currentVendors.forEach(v => v.items.forEach((it, idx) => it._idx = idx));
+  currentVendors.forEach(v => {
+    const seen = new Map();
+    v.items.forEach((it) => {
+      delete it._dupIdx;
+      const c = (seen.get(it.name) || 0);
+      if(c > 0) it._dupIdx = c;
+      seen.set(it.name, c + 1);
+    });
+  });
 }
 
 // 저장 디바운스
@@ -413,19 +445,30 @@ function loadState(){
     if(typeof val === 'string' || typeof val === 'number'){
       val = { qty: String(val), unit: null };
     }
+    let vName = '', iName = '';
     if(oldKey.includes(SEP)){
-      newState[oldKey] = val;
+      // 신규 / v5 키 형식 모두: vendor SEP [idx SEP] name [SEP dup]
+      // 뒤에서부터 분석
+      const parts = oldKey.split(SEP);
+      if(parts.length === 2){
+        // 새 형식: vendor SEP name
+        vName = parts[0]; iName = parts[1];
+      } else if(parts.length === 3){
+        // v5 임시: vendor SEP idx SEP name (idx는 정수)
+        vName = parts[0]; iName = parts[2];
+      } else if(parts.length >= 2){
+        vName = parts[0]; iName = parts[parts.length - 1];
+      }
     } else if(oldKey.includes('|')){
-      // 옛 형식: "거래처|품목" → 새 키로 마이그레이션
-      const sepIdx = oldKey.indexOf('|');
-      const vName = oldKey.slice(0, sepIdx);
-      const iName = oldKey.slice(sepIdx + 1);
-      const v = currentVendors.find(vv => vv.name === vName);
-      if(!v) return;
-      const item = v.items.find(it => it.name === iName);
-      if(!item) return;
-      newState[itemKey(v, item)] = val;
-    }
+      // 옛 형식: "거래처|품목"
+      const i = oldKey.indexOf('|');
+      vName = oldKey.slice(0, i); iName = oldKey.slice(i + 1);
+    } else { return; }
+    const v = currentVendors.find(vv => vv.name === vName);
+    if(!v) return;
+    const item = v.items.find(it => it.name === iName);
+    if(!item) return;
+    newState[itemKey(v, item)] = val;
   });
   state = newState;
   otherText = safeParse(otherKey(), {}) || {};
@@ -436,7 +479,7 @@ function initKakao(){
     if(window.__kakaoCdnFailed) console.warn('Kakao CDN load failed');
     return false;
   }
-  const key = localStorage.getItem('kakaoAppKey');
+  const key = safeGet('kakaoAppKey');
   if(!key) return false;
   if(!Kakao.isInitialized()){
     try{ Kakao.init(key); } catch(e){ return false; }
@@ -452,7 +495,7 @@ function selectStore(name){
   currentStore = name;
   currentVendors = STORES[name];
   activeVendorIdx = 0;
-  localStorage.setItem('lastStore', name);
+  safeSet('lastStore', name);
   indexItems();
   loadState();
   document.getElementById('picker').classList.add('hide');
@@ -497,6 +540,8 @@ function renderTabs(){
   currentVendors.forEach((v, vi) => {
     const btn = document.createElement('button');
     btn.className = 'vendor-tab' + (vi === activeVendorIdx ? ' active' : '');
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', vi === activeVendorIdx ? 'true' : 'false');
     btn.innerHTML = `
       <span>${escapeHTML(v.icon)} ${escapeHTML(v.name)}</span>
       <span class="tab-badge" data-c="${vi}">0</span>`;
@@ -535,10 +580,10 @@ function renderVendors(){
             <div class="info">4개월 ${formatQty(it.qty)} · ${it.price.toLocaleString()}원</div>
           </div>
           <div class="qty-bar">
-            <button class="dec" type="button">−</button>
-            <input type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="0" value="${escapeHTML(q)}" />
-            <button class="inc" type="button">+</button>
-            <select class="unit">
+            <button class="dec" type="button" aria-label="수량 감소">−</button>
+            <input type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="0" value="${escapeHTML(q)}" aria-label="${escapeHTML(it.name)} 수량" />
+            <button class="inc" type="button" aria-label="수량 증가">+</button>
+            <select class="unit" aria-label="단위 선택">
               ${UNIT_OPTIONS.map(uo => `<option value="${escapeHTML(uo)}"${uo===u?' selected':''}>${escapeHTML(uo)}</option>`).join('')}
             </select>
           </div>
@@ -557,8 +602,10 @@ function renderVendors(){
         if(filterTier === 'sel') applyFilter();
       }
       inp.addEventListener('input', () => {
-        // 잘못된 문자 자동 정리
-        const cleaned = inp.value.replace(/[^0-9.]/g, '');
+        // 숫자/소수점만 + 첫 소수점만 허용 ("1.2.3" → "1.2")
+        const cleaned = inp.value
+          .replace(/[^0-9.]/g, '')
+          .replace(/^(\d*\.\d*).*$/, '$1');
         if(cleaned !== inp.value) inp.value = cleaned;
         commit();
       });
@@ -595,15 +642,15 @@ function renderVendors(){
 
 // PointerEvents 기반 길게누르기 (touch/mouse 이중 발생 차단)
 function attachHoldRepeat(el, tap, holdAction){
-  let timer = null, intervalTimer = null, isHolding = false, pid = null;
+  let timer = null, intervalTimer = null, isHolding = false, pid = null, cancelled = false;
   function clear(){
     if(timer){ clearTimeout(timer); timer = null; }
     if(intervalTimer){ clearInterval(intervalTimer); intervalTimer = null; }
   }
   el.addEventListener('pointerdown', e => {
     e.preventDefault();
-    if(pid !== null) return;  // 다른 포인터 무시
-    pid = e.pointerId;
+    if(pid !== null) return;
+    pid = e.pointerId; cancelled = false;
     try { el.setPointerCapture(pid); } catch(_){}
     isHolding = false;
     timer = setTimeout(() => {
@@ -615,12 +662,14 @@ function attachHoldRepeat(el, tap, holdAction){
   function release(e){
     if(e.pointerId !== pid) return;
     clear();
-    if(!isHolding) tap();
-    isHolding = false; pid = null;
+    // 길게누르기 중이 아니고, 취소되지 않았을 때만 탭으로 처리
+    if(!isHolding && !cancelled) tap();
+    isHolding = false; cancelled = false; pid = null;
   }
   el.addEventListener('pointerup', release);
-  el.addEventListener('pointercancel', e => { if(e.pointerId === pid){ clear(); isHolding = false; pid = null; } });
-  el.addEventListener('pointerleave', e => { if(e.pointerId === pid){ clear(); } });
+  el.addEventListener('pointercancel', e => { if(e.pointerId === pid){ clear(); isHolding = false; cancelled = true; pid = null; } });
+  // 영역 벗어나면 탭 취소 (다시 안 들어와도 안전)
+  el.addEventListener('pointerleave', e => { if(e.pointerId === pid){ clear(); cancelled = true; } });
 }
 
 function showActiveVendor(){
@@ -632,6 +681,7 @@ function showActiveVendor(){
 
 function updateCounts(){
   let total = 0, totalItems = 0, totalOther = 0;
+  const q = searchText.toLowerCase();
   currentVendors.forEach((v, vi) => {
     let n = 0;
     v.items.forEach(it => {
@@ -641,34 +691,30 @@ function updateCounts(){
     const ol = countOtherLines(otherText[v.name] || '');
     n += ol;
     totalItems += (n - ol); totalOther += ol;
+    total += n;
+    // 검색 매칭 (비활성 탭에서만 별도 표시)
+    const matchN = (q && vi !== activeVendorIdx)
+      ? v.items.filter(it => it.name.toLowerCase().includes(q)).length
+      : 0;
     const badge = document.querySelector(`.tab-badge[data-c="${vi}"]`);
     if(badge){
-      badge.textContent = n;
+      // 표기: 선택N(if>0) [· 🔍M(if matched in non-active)]
+      let txt;
+      if(n > 0 && matchN > 0) txt = `${n}✔·🔍${matchN}`;
+      else if(matchN > 0)     txt = `🔍${matchN}`;
+      else                    txt = `${n}`;
+      badge.textContent = txt;
       badge.classList.toggle('has', n > 0);
-      badge.classList.toggle('zero', n === 0 && !searchText);
-      badge.classList.remove('match');
+      badge.classList.toggle('match', matchN > 0 && n === 0);
+      badge.classList.toggle('zero', n === 0 && matchN === 0 && !q);
     }
-    total += n;
   });
   document.getElementById('checkedCount').textContent = total;
   document.getElementById('btn-preview').disabled = total === 0;
-  // 헤더 부제 동적
   const sub = document.getElementById('storeSub');
   if(sub) sub.textContent = total > 0
     ? `${total}건 선택됨 (목록 ${totalItems}${totalOther ? ' + 기타 ' + totalOther : ''})`
     : '사용량 많은순 · 빈도색 좌측표시';
-  // 검색 시 다른 탭 매칭
-  if(searchText){
-    const q = searchText.toLowerCase();
-    currentVendors.forEach((v, vi) => {
-      if(vi === activeVendorIdx) return;
-      const m = v.items.filter(it => it.name.toLowerCase().includes(q)).length;
-      if(m > 0){
-        const badge = document.querySelector(`.tab-badge[data-c="${vi}"]`);
-        if(badge){ badge.textContent = '🔍' + m; badge.classList.add('match'); badge.classList.remove('zero'); }
-      }
-    });
-  }
 }
 
 function applyFilter(){
@@ -697,15 +743,22 @@ document.getElementById('search').addEventListener('input', e => {
   searchTimer = setTimeout(() => { searchText = e.target.value; applyFilter(); }, 150);
 });
 document.querySelectorAll('.tier-filter').forEach(b => {
+  b.setAttribute('role', 'button');
+  b.setAttribute('aria-pressed', b.classList.contains('active') ? 'true' : 'false');
   b.onclick = () => {
-    document.querySelectorAll('.tier-filter').forEach(x => x.classList.remove('active'));
-    b.classList.add('active'); filterTier = b.dataset.tier; applyFilter();
+    document.querySelectorAll('.tier-filter').forEach(x => {
+      x.classList.remove('active');
+      x.setAttribute('aria-pressed', 'false');
+    });
+    b.classList.add('active');
+    b.setAttribute('aria-pressed', 'true');
+    filterTier = b.dataset.tier;
+    applyFilter();
   };
 });
 
 function buildOrderData(forVendor){
   const d = document.getElementById('date').value;
-  const w = '';
   const sections = [];
   let itemCount = 0, otherCount = 0, totalAmount = 0;
   currentVendors.forEach(v => {
@@ -727,7 +780,7 @@ function buildOrderData(forVendor){
     if(ordered.length === 0 && otherLines.length === 0) return;
     sections.push({ vendor: v, ordered, otherLines });
   });
-  return { date: d, writer: w, sections, itemCount, otherCount, totalAmount };
+  return { date: d, sections, itemCount, otherCount, totalAmount };
 }
 
 function formatOrderText(data){
@@ -756,8 +809,8 @@ function formatOrderText(data){
 }
 
 function refreshPreview(){
-  const cur = document.getElementById('date').value;
-  if(!cur || cur < todayLocal()){
+  // 날짜가 비어있을 때만 오늘로 채움 (사용자가 어제/특정일 선택했을 수 있음)
+  if(!document.getElementById('date').value){
     document.getElementById('date').value = todayLocal();
     updateDateWeekday();
   }
@@ -802,27 +855,43 @@ document.getElementById('btn-saveReset').onclick = () => saveAndReset(false);
 document.getElementById('btn-copyHist').onclick = copyHistText;
 document.getElementById('btn-reorder').onclick = reorderFromHistory;
 
+async function doCopy(text){
+  try{ await navigator.clipboard.writeText(text); }
+  catch(e){
+    const ta = document.getElementById('output');
+    ta.select(); document.execCommand('copy');
+  }
+}
 async function copyText(){
-  const text = document.getElementById('output').value;
-  try{ await navigator.clipboard.writeText(text); toast('✔ 복사 완료'); }
-  catch(e){ const ta = document.getElementById('output'); ta.select(); document.execCommand('copy'); toast('✔ 복사 완료'); }
-  promptSaveAfterSend();
+  // 단순 복사 — 이력 저장 안내 띄우지 않음 (사용자가 수정용으로 복사할 수 있음)
+  await doCopy(document.getElementById('output').value);
+  toast('✔ 복사 완료');
 }
 
 async function sendKakao(){
   const text = document.getElementById('output').value;
   let success = false;
-  if(initKakao()){
+  const kakaoReady = initKakao();
+  if(kakaoReady){
     try{
-      Kakao.Share.sendDefault({
+      // SDK v2는 Promise 반환 — 비동기 실패도 잡으려면 await 필수
+      const result = Kakao.Share.sendDefault({
         objectType: 'text', text,
         link: { mobileWebUrl: location.href, webUrl: location.href },
         buttonTitle: '발주리스트 열기',
       });
+      if(result && typeof result.then === 'function'){
+        await result;
+      }
       success = true;
-    } catch(e){ console.error(e); }
+    } catch(e){
+      console.error('Kakao share error', e);
+      toast('카톡 직접 전송 실패 — 다른 방법으로 대체');
+    }
   } else if(window.__kakaoCdnFailed){
     toast('카톡 SDK 로드 실패 — 시스템 공유로 대체');
+  } else if(!safeGet('kakaoAppKey')){
+    // 키 미설정 - 조용히 폴백 (안내 토스트 없음, 처음 사용자 혼란 방지)
   }
   if(!success){
     if(navigator.share){
@@ -831,19 +900,24 @@ async function sendKakao(){
         success = true;
       } catch(e){
         if(e && e.name === 'AbortError') return;  // 사용자 취소 → 폴백 안 함
+        console.warn('navigator.share error', e);
       }
     }
   }
-  if(!success){ copyText(); return; }
+  if(!success){
+    // 시스템 공유도 실패 → 복사로 폴백 + 이력 저장 안내 (발송 의도가 분명)
+    await doCopy(document.getElementById('output').value);
+    toast('공유 미지원 — 복사로 대체');
+  }
   promptSaveAfterSend();
 }
 
 async function promptSaveAfterSend(){
-  // 전송/복사 후 약간 지연하여 안내 (UX)
+  // 전송/복사 후 약간 지연하여 안내 (UX) - share 시트 닫힘 대기
   setTimeout(async () => {
     const ok = await customConfirm('발주서를 보냈다면\n이력에 저장하고 입력란을 초기화할까요?', {okText:'저장+초기화', danger:false});
     if(ok) saveAndReset(true);
-  }, 500);
+  }, 250);
 }
 
 async function saveAndReset(silent){
@@ -852,17 +926,29 @@ async function saveAndReset(silent){
     if(!silent) toast('발주할 품목이 없습니다');
     return;
   }
-  // 명시적 [저장+초기화] 누른 경우만 확인 (silent=true는 발송 후 안내에서 이미 한 번 받음)
   if(!silent){
-    const ok = await customConfirm('현재 입력 내용을 이력에 저장하고\n발주 화면을 초기화합니다.\n진행할까요?', {okText:'저장+초기화'});
+    // 거래처 탭 상태에서 저장 시 명시적 경고
+    const onPartialTab = document.getElementById('modal').classList.contains('open') && modalActiveVendor !== 'all';
+    const msg = onPartialTab
+      ? `현재 "${modalActiveVendor}" 탭 미리보기만 보이지만,\n저장+초기화는 전체 거래처 입력을 함께 처리합니다.\n(textarea 편집본은 무시되고 전체 내용으로 저장)\n\n계속할까요?`
+      : '현재 입력 내용을 이력에 저장하고\n발주 화면을 초기화합니다.\n진행할까요?';
+    const ok = await customConfirm(msg, {okText:'저장+초기화'});
     if(!ok) return;
   }
-  const text = formatOrderText(data);
+  // 미리보기 textarea 사용 조건:
+  //   - 모달이 열려있고
+  //   - "전체" 탭일 때만 (특정 거래처 탭은 부분 텍스트이므로 state/금액과 불일치 위험)
+  //   - 사용자가 실제로 텍스트를 가지고 있을 때
+  const outputEl = document.getElementById('output');
+  const modalOpen = document.getElementById('modal').classList.contains('open');
+  const useEditedText = modalOpen
+    && modalActiveVendor === 'all'
+    && outputEl && outputEl.value.trim();
+  const text = useEditedText ? outputEl.value : formatOrderText(data);
   const history = safeParse(historyKey(), []);
   history.unshift({
     ts: Date.now(),
     date: data.date,
-    writer: data.writer,
     state: JSON.parse(JSON.stringify(state)),
     otherText: JSON.parse(JSON.stringify(otherText)),
     text,
@@ -967,14 +1053,72 @@ function toast(msg){
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-function openModal(id){ document.getElementById(id).classList.add('open'); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+// 휴대폰 뒤로가기로 모달 닫기 위한 history 스택
+const _modalStack = [];
+let _suppressPopstate = false;
+function openModal(id){
+  const el = document.getElementById(id);
+  if(!el || el.classList.contains('open')) return;
+  el.classList.add('open');
+  _modalStack.push(id);
+  // 뒤로가기 액션 1단계 추가
+  try { history.pushState({modal: id, depth: _modalStack.length}, ''); } catch(_){}
+}
+function closeModal(id){
+  const el = document.getElementById(id);
+  if(!el || !el.classList.contains('open')) return;
+  el.classList.remove('open');
+  const idx = _modalStack.lastIndexOf(id);
+  if(idx < 0) return;
+  _modalStack.splice(idx, 1);
+  // 우리가 닫은 거면 그만큼 history도 뒤로 (popstate 무시)
+  if(history.state && history.state.modal){
+    _suppressPopstate = true;
+    try { history.back(); } catch(_){ _suppressPopstate = false; }
+  }
+}
+window.addEventListener('popstate', () => {
+  if(_suppressPopstate){ _suppressPopstate = false; return; }
+  // 사용자가 직접 뒤로가기 → 가장 위 모달 1개만 닫기
+  const top = _modalStack.pop();
+  if(!top) return;
+  const el = document.getElementById(top);
+  if(el) el.classList.remove('open');
+  // 미리보기 편집본 닫힐 때 플래그 리셋
+  if(top === 'modal') userEditedPreview = false;
+});
+
+// 미리보기 모달 닫을 때 편집본 손실 경고
+async function closePreviewModalSafely(){
+  if(userEditedPreview){
+    const ok = await customConfirm('미리보기에서 수정한 내용이 사라집니다.\n그래도 닫을까요?', {okText:'닫기', danger:true});
+    if(!ok) return false;
+  }
+  closeModal('modal');
+  userEditedPreview = false;
+  return true;
+}
 
 document.querySelectorAll('.modal').forEach(m => {
-  m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
+  m.addEventListener('click', e => {
+    if(e.target !== m) return;
+    if(m.id === 'modal'){ closePreviewModalSafely(); return; }
+    closeModal(m.id);
+  });
 });
 document.querySelectorAll('[data-close]').forEach(b => {
-  b.onclick = () => closeModal(b.dataset.close);
+  b.onclick = () => {
+    if(b.dataset.close === 'modal'){ closePreviewModalSafely(); return; }
+    closeModal(b.dataset.close);
+  };
+});
+// ESC 키로 가장 위의 열린 모달 닫기 (데스크탑/외부 키보드)
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  const open = document.querySelector('.confirm-modal.open, .modal.open, .settings.open');
+  if(!open) return;
+  if(open.id === 'modal') closePreviewModalSafely();
+  else closeModal(open.id);
 });
 
 // ===== 커스텀 confirm =====
@@ -988,7 +1132,7 @@ function customConfirm(message, options={}){
     cancelBtn.textContent = options.cancelText || '취소';
     okBtn.classList.toggle('danger', !!options.danger);
     function cleanup(){
-      m.classList.remove('open');
+      closeModal('confirmModal');
       okBtn.onclick = null;
       cancelBtn.onclick = null;
       m.removeEventListener('click', bgHandler);
@@ -997,19 +1141,19 @@ function customConfirm(message, options={}){
     okBtn.onclick = () => { cleanup(); resolve(true); };
     cancelBtn.onclick = () => { cleanup(); resolve(false); };
     m.addEventListener('click', bgHandler);
-    m.classList.add('open');
+    openModal('confirmModal');
   });
 }
 
 function openSettings(){
-  document.getElementById('apiKeyInput').value = localStorage.getItem('kakaoAppKey') || '';
-  document.getElementById('settings').classList.add('open');
+  document.getElementById('apiKeyInput').value = safeGet('kakaoAppKey') || '';
+  openModal('settings');
 }
-function closeSettings(){ document.getElementById('settings').classList.remove('open'); }
+function closeSettings(){ closeModal('settings'); }
 function saveApiKey(){
   const key = document.getElementById('apiKeyInput').value.trim();
-  if(key){ localStorage.setItem('kakaoAppKey', key); toast('✔ 카톡 키 저장'); }
-  else { localStorage.removeItem('kakaoAppKey'); }
+  if(key){ safeSet('kakaoAppKey', key); toast('✔ 카톡 키 저장'); }
+  else { safeRemove('kakaoAppKey'); }
   initKakao();
   closeSettings();
 }
@@ -1021,22 +1165,47 @@ window.openSettings = openSettings; window.closeSettings = closeSettings; window
 // 초기화
 document.getElementById('date').value = todayLocal();
 updateDateWeekday();
+// change 만 등록 (input 도 호출되면 중복) — 데스크탑/모바일 모두 change 발화함
 document.getElementById('date').addEventListener('change', updateDateWeekday);
-document.getElementById('date').addEventListener('input', updateDateWeekday);
 initKakao();
-const last = localStorage.getItem('lastStore');
-if(last && STORES[last]) selectStore(last);
+const lastStore = safeGet('lastStore');
+if(lastStore && STORES[lastStore]) selectStore(lastStore);
 
 document.addEventListener('visibilitychange', () => {
   if(!document.hidden){
-    const cur = document.getElementById('date').value;
-    if(!cur || cur < todayLocal()){
+    // 비어있을 때만 오늘로 채움 (사용자 선택 보존)
+    if(!document.getElementById('date').value){
       document.getElementById('date').value = todayLocal();
       updateDateWeekday();
     }
     requestAnimationFrame(setStickyVars);
+    // SW가 있으면 새 버전 체크
+    if(navigator.serviceWorker && navigator.serviceWorker.controller){
+      navigator.serviceWorker.getRegistration().then(reg => reg && reg.update()).catch(()=>{});
+    }
   }
 });
+
+// Service Worker 등록 (오프라인 지원 + 자동 캐시 갱신)
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => {
+        // 새 SW 발견 시 자동 활성화
+        reg.addEventListener('updatefound', () => {
+          const sw = reg.installing;
+          if(!sw) return;
+          sw.addEventListener('statechange', () => {
+            if(sw.state === 'installed' && navigator.serviceWorker.controller){
+              // 새 버전 준비됨 - 다음 새로고침 때 적용됨
+              console.log('새 버전 준비됨, 새로고침 시 적용');
+            }
+          });
+        });
+      })
+      .catch(e => console.warn('SW reg failed', e));
+  });
+}
 </script>
 </body>
 </html>
