@@ -10,10 +10,10 @@
 <!-- 캐시는 Service Worker가 관리 (network-first → 캐시 폴백) -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <!-- Chrome PWA 설치 가능: 별도 manifest.json 파일 필요 (data: URL은 Chrome 거부) -->
-<link rel="apple-touch-icon" href="icon.svg" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link rel="manifest" href="manifest.json" />
-<title>가라스시 발주 v20260603-1615</title>
+<title>가라스시 발주 v20260706-1200</title>
 <style>
   :root{
     --primary:#1F4E78; --kakao:#FEE500; --kakao-text:#3C1E1E;
@@ -114,6 +114,7 @@
 
   /* 좁은 폰(370px 이하)에서 수량/단위 줄여서 이름에 더 많은 자리 */
   @media (max-width:370px){
+    #author{flex-basis:70px;font-size:14px;}
     .qty-bar{gap:4px;}
     .qty-bar button{width:32px;height:32px;flex-basis:32px;font-size:18px;}
     .qty-bar input{width:46px;flex-basis:46px;}
@@ -245,7 +246,7 @@
   <button class="store-btn" data-store="전주점"><span>📍 전주점</span><span>→</span></button>
   <div class="footer">
     <a onclick="openSettings()">⚙ 카톡 연동</a>
-    <span style="opacity:.5">v20260603-1615</span>
+    <span style="opacity:.5">v20260706-1200</span>
   </div>
 </div>
 
@@ -264,6 +265,7 @@
 <div class="meta" id="metaBlock" style="display:none">
   <input id="date" type="date" />
   <div class="weekday-chip" id="dateWeekday"></div>
+  <input id="author" type="text" placeholder="작성자" maxlength="10" autocomplete="off" style="flex:0 0 88px" />
 </div>
 
 <div class="filter" id="filterBlock" style="display:none">
@@ -582,6 +584,7 @@ function selectStore(name){
   document.getElementById('actionbar').style.display = '';
   document.getElementById('storeTitle').textContent = '🍣 ' + name;
   document.getElementById('date').value = todayLocal();
+  document.getElementById('author').value = safeGet('author_' + name) || '';
   updateDateWeekday();
   renderTabs();
   renderVendors();
@@ -686,12 +689,13 @@ function renderVendors(){
         commit();
       });
       sel.addEventListener('change', () => { if(isValidQty(inp.value)) commit(); });
+      const r3 = n => Math.round(n * 1000) / 1000;  // 부동소수 오차 보정
       attachHoldRepeat(row.querySelector('.dec'),
-        () => { const c = parseFloat(inp.value) || 0; inp.value = Math.max(0, c - 1) || ''; commit(); },
-        () => { const c = parseFloat(inp.value) || 0; inp.value = Math.max(0, c - 5) || ''; commit(); });
+        () => { const c = parseFloat(inp.value) || 0; inp.value = r3(Math.max(0, c - 1)) || ''; commit(); },
+        () => { const c = parseFloat(inp.value) || 0; inp.value = r3(Math.max(0, c - 5)) || ''; commit(); });
       attachHoldRepeat(row.querySelector('.inc'),
-        () => { const c = parseFloat(inp.value) || 0; inp.value = c + 1; commit(); },
-        () => { const c = parseFloat(inp.value) || 0; inp.value = c + 5; commit(); });
+        () => { const c = parseFloat(inp.value) || 0; inp.value = r3(c + 1); commit(); },
+        () => { const c = parseFloat(inp.value) || 0; inp.value = r3(c + 5); commit(); });
       sec.appendChild(row);
     });
     const other = document.createElement('div');
@@ -865,7 +869,8 @@ function formatOrderText(data){
   const lines = [];
   lines.push(`가라스시 ${currentStore} 발주서`);
   const dow = dayOfWeek(data.date);
-  lines.push(`${data.date || '____-__-__'}${dow ? ' (' + dow + ')' : ''}`);
+  const author = (document.getElementById('author')?.value || '').trim();
+  lines.push(`${data.date || '____-__-__'}${dow ? ' (' + dow + ')' : ''}${author ? ' · ' + author : ''}`);
   data.sections.forEach(({vendor, ordered, otherLines}, idx) => {
     const cnt = ordered.length + otherLines.length;
     if(idx > 0) lines.push('');  // 첫 거래처 위는 빈 줄 없이 바로 붙임
@@ -883,6 +888,8 @@ function formatOrderText(data){
   if(data.itemCount === 0 && data.otherCount === 0){
     return `가라스시 ${currentStore} 발주서\n\n(아직 발주 품목이 없습니다)`;
   }
+  lines.push('');
+  lines.push(`합계 ${data.itemCount + data.otherCount}건`);
   return lines.join('\n');
 }
 
@@ -1104,10 +1111,21 @@ async function copyText(){
   toast('✔ 복사 완료');
 }
 
+let _sending = false;
 async function sendKakao(){
+  if(_sending) return;  // 중복 탭 방지
+  _sending = true;
+  const sendBtn = document.getElementById('btn-send');
+  sendBtn.disabled = true;
+  try{ await doSendKakao(); }
+  finally{ _sending = false; sendBtn.disabled = false; }
+}
+async function doSendKakao(){
   const text = document.getElementById('output').value;
   let success = false;
-  const kakaoReady = initKakao();
+  // 카카오 텍스트 템플릿은 200자 초과 시 잘림 → 긴 발주서는 시스템 공유 우선
+  const tooLongForKakao = text.length > 200;
+  const kakaoReady = !tooLongForKakao && initKakao();
   if(kakaoReady){
     try{
       // SDK v2는 Promise 반환 — 비동기 실패도 잡으려면 await 필수
@@ -1124,6 +1142,8 @@ async function sendKakao(){
       console.error('Kakao share error', e);
       toast('카톡 직접 전송 실패 — 다른 방법으로 대체');
     }
+  } else if(tooLongForKakao && safeGet('kakaoAppKey')){
+    // 카카오 직접 전송은 200자 초과 시 내용이 잘림 → 조용히 시스템 공유로 우회
   } else if(window.__kakaoCdnFailed){
     toast('카톡 SDK 로드 실패 — 시스템 공유로 대체');
   } else if(!safeGet('kakaoAppKey')){
@@ -1403,6 +1423,13 @@ document.getElementById('date').value = todayLocal();
 updateDateWeekday();
 // change 만 등록 (input 도 호출되면 중복) — 데스크탑/모바일 모두 change 발화함
 document.getElementById('date').addEventListener('change', updateDateWeekday);
+// 작성자: 점포별로 자동 기억
+document.getElementById('author').addEventListener('input', e => {
+  if(!currentStore) return;
+  const v = e.target.value.trim();
+  if(v) safeSet('author_' + currentStore, v);
+  else safeRemove('author_' + currentStore);
+});
 initKakao();
 const lastStore = safeGet('lastStore');
 if(lastStore && STORES[lastStore]) selectStore(lastStore);
@@ -1431,15 +1458,26 @@ if('serviceWorker' in navigator){
         reg.addEventListener('updatefound', () => {
           const sw = reg.installing;
           if(!sw) return;
-          sw.addEventListener('statechange', () => {
+          sw.addEventListener('statechange', async () => {
             if(sw.state === 'installed' && navigator.serviceWorker.controller){
-              // 새 버전 준비됨 - 다음 새로고침 때 적용됨
-              console.log('새 버전 준비됨, 새로고침 시 적용');
+              // 새 버전 준비됨 → 사용자에게 즉시 적용 여부 확인
+              const ok = await customConfirm('새 버전이 준비되었습니다.\n지금 업데이트할까요?\n(입력 중인 발주 내용은 유지됩니다)', {okText:'업데이트'});
+              if(ok){
+                saveStateImmediate();
+                sw.postMessage({type:'SKIP_WAITING'});
+              }
             }
           });
         });
       })
       .catch(e => console.warn('SW reg failed', e));
+  });
+  // 새 SW가 제어권을 잡으면 1회만 새로고침 (무한 새로고침 방지)
+  let _reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if(_reloaded) return;
+    _reloaded = true;
+    location.reload();
   });
 }
 </script>

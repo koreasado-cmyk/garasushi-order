@@ -1,22 +1,31 @@
 /* 가라스시 발주 - Service Worker
- * Build: 20260603-1615
+ * Build: 20260706-1200
  * 전략: network-first → 캐시 폴백
  */
-const CACHE = 'garasushi-order-v20260603-1615';
+const CACHE = 'garasushi-order-v20260706-1200';
 const CORE = [
   './',
   './index.html',
   './manifest.json',
   './icon.svg',
   './logo.png',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-maskable-512.png',
+  './apple-touch-icon.png',
 ];
 
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
       .then(c => c.addAll(CORE))
-      .then(() => self.skipWaiting())
+      // 새 버전은 사용자 확인(SKIP_WAITING 메시지) 후 활성화됨
   );
+});
+
+// index.html에서 사용자 확인 후 보내는 즉시 활성화 요청
+self.addEventListener('message', e => {
+  if(e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
