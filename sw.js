@@ -1,8 +1,8 @@
 /* 가라스시 발주 - Service Worker
- * Build: 20260910-2400
+ * Build: 20260910-2500
  * 전략: network-first → 캐시 폴백
  */
-const CACHE = 'garasushi-order-v20260910-2400';
+const CACHE = 'garasushi-order-v20260910-2500';
 const CORE = [
   './',
   './index.html',
